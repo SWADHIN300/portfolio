@@ -20,7 +20,7 @@ export default function About() {
 
                     <div className="space-y-6 text-gray-300 text-lg">
                         <p>
-                            I'm a Full Stack Developer passionate about building modern, scalable web applications
+                            I&apos;m a Full Stack Developer passionate about building modern, scalable web applications
                             that solve real-world problems. With expertise in both frontend and backend technologies,
                             I create seamless user experiences backed by robust infrastructure.
                         </p>
