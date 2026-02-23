@@ -50,6 +50,10 @@ export default {
                     "4": "hsl(var(--chart-4))",
                     "5": "hsl(var(--chart-5))",
                 },
+                boxShadow: {
+                    hard: "6px 6px 0px 0px rgba(0,0,0,1)",
+                    "hard-white": "6px 6px 0px 0px rgba(255,255,255,1)",
+                },
             },
             borderRadius: {
                 lg: "var(--radius)",
@@ -57,8 +61,9 @@ export default {
                 sm: "calc(var(--radius) - 4px)",
             },
             fontFamily: {
-                sans: ["var(--font-inter)"],
-                mono: ["var(--font-jetbrains-mono)"],
+                sans: ["var(--font-space-mono)"],
+                display: ["var(--font-vt323)"],
+                mono: ["var(--font-vt323)"],
             },
             animation: {
                 "fade-in": "fadeIn 0.6s ease-out",

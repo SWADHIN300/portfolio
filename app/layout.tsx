@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Space_Mono, VT323 } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
+const spaceMono = Space_Mono({
     subsets: ["latin"],
-    variable: "--font-inter",
+    weight: ["400", "700"],
+    variable: "--font-space-mono",
     display: "swap",
 });
 
-const jetbrainsMono = JetBrains_Mono({
+const vt323 = VT323({
     subsets: ["latin"],
-    variable: "--font-jetbrains-mono",
+    weight: ["400"],
+    variable: "--font-vt323",
     display: "swap",
 });
 
@@ -28,7 +30,7 @@ export default function RootLayout({
     return (
         <html lang="en" className="dark">
             <body
-                className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}
+                className={`${spaceMono.variable} ${vt323.variable} font-sans antialiased`}
             >
                 {children}
             </body>

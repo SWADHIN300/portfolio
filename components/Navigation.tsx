@@ -31,13 +31,13 @@ export default function Navigation() {
             initial={{ y: -100 }}
             animate={{ y: 0 }}
             transition={{ duration: 0.6 }}
-            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "bg-black/80 backdrop-blur-md border-b border-gray-800" : "bg-transparent"
+            className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? "bg-background border-b-4 border-foreground shadow-sm" : "bg-background/80"
                 }`}
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
-                    <a href="#" className="text-xl font-bold font-mono">
-                        &lt;/&gt;
+                    <a href="#" className="text-2xl font-display font-bold border-2 border-foreground px-2 hover:shadow-hard transition-all">
+                        SWADHIN
                     </a>
 
                     {/* Desktop Navigation */}
@@ -46,7 +46,7 @@ export default function Navigation() {
                             <a
                                 key={item.name}
                                 href={item.href}
-                                className="text-gray-300 hover:text-white transition-colors font-mono text-sm"
+                                className="text-foreground hover:bg-foreground hover:text-background px-4 py-1 transition-all font-display text-xl uppercase tracking-tighter border-2 border-transparent hover:border-foreground"
                             >
                                 {item.name}
                             </a>
@@ -75,14 +75,14 @@ export default function Navigation() {
                     initial={{ opacity: 0, y: -20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
-                    className="md:hidden bg-black/95 backdrop-blur-md border-b border-gray-800"
+                    className="md:hidden bg-background border-b-4 border-foreground"
                 >
-                    <div className="px-4 pt-2 pb-4 space-y-2">
+                    <div className="px-4 pt-2 pb-4 space-y-4">
                         {navItems.map((item) => (
                             <a
                                 key={item.name}
                                 href={item.href}
-                                className="block px-3 py-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-md transition-colors font-mono"
+                                className="block px-3 py-2 text-foreground hover:bg-foreground hover:text-background border-2 border-foreground transition-all font-display text-2xl uppercase"
                                 onClick={() => setIsMobileMenuOpen(false)}
                             >
                                 {item.name}

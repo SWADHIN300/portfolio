@@ -9,7 +9,7 @@ export default function SectionDivider() {
             whileInView={{ opacity: 1, scaleX: 1 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            className="w-full h-px bg-gradient-to-r from-transparent via-gray-700 to-transparent my-16"
+            className="w-full h-1 bg-foreground my-16"
         />
     );
 }
