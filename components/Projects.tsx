@@ -9,7 +9,7 @@ const projects = [
         title: "Coin Tracking",
         description: "A comprehensive cryptocurrency tracking application with real-time price updates, candlestick charts, and portfolio management features.",
         tech: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Chart.js"],
-        liveUrl: "https://coin-tracking-7mso.vercel.app/",
+        liveUrl: "https://coin-tracking-three.vercel.app/",
         githubUrl: "https://github.com/SWADHIN300/coin-tracking",
     },
     {
