@@ -36,10 +36,10 @@ export default function BackToTop() {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.5 }}
                     onClick={scrollToTop}
-                    className="fixed bottom-8 right-8 p-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full shadow-lg hover:shadow-xl transition-shadow duration-300 z-50 group"
+                    className="fixed bottom-8 right-8 p-4 bg-background border-4 border-foreground text-foreground shadow-hard hover:-translate-x-1 hover:-translate-y-1 active:shadow-none active:translate-x-0 active:translate-y-0 transition-all z-50 group"
                     aria-label="Back to top"
                 >
-                    <ArrowUp className="w-6 h-6 group-hover:translate-y-[-2px] transition-transform" />
+                    <ArrowUp className="w-8 h-8 group-hover:translate-y-[-2px] transition-transform" />
                 </motion.button>
             )}
         </AnimatePresence>

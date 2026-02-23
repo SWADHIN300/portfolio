@@ -12,13 +12,11 @@ export default function About() {
                     transition={{ duration: 0.6 }}
                     viewport={{ once: true }}
                 >
-                    <h2 className="text-5xl md:text-7xl font-bold mb-12">
-                        <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
-                            Swadhin
-                        </span>
+                    <h2 className="text-7xl md:text-9xl font-display mb-12 uppercase tracking-tighter border-b-8 border-foreground pb-4 inline-block">
+                        About Me
                     </h2>
 
-                    <div className="space-y-6 text-gray-300 text-lg">
+                    <div className="space-y-6 text-foreground text-xl font-sans border-2 border-foreground p-8 bg-background shadow-hard-lg">
                         <p>
                             I&apos;m a Full Stack Developer passionate about building modern, scalable web applications
                             that solve real-world problems. With expertise in both frontend and backend technologies,
@@ -30,13 +28,13 @@ export default function About() {
                             to deliver applications that not only work well but feel great to use.
                         </p>
 
-                        <div className="pt-8">
-                            <h3 className="text-2xl font-bold mb-4 text-white">Experience</h3>
-                            <div className="space-y-4">
-                                <div className="border-l-2 border-gray-700 pl-4">
-                                    <p className="text-gray-400 text-sm">2023 - Present</p>
-                                    <p className="text-white font-semibold">Full Stack Developer</p>
-                                    <p className="text-gray-400">Building modern web applications with Next.js and React</p>
+                        <div className="pt-12">
+                            <h3 className="text-4xl font-display font-bold mb-8 uppercase border-l-8 border-foreground pl-4">Experience</h3>
+                            <div className="space-y-8">
+                                <div className="border-2 border-foreground p-6 shadow-hard bg-background">
+                                    <p className="text-foreground text-sm font-mono mb-2">2023 - PRESENT</p>
+                                    <p className="text-foreground font-display text-2xl uppercase">Full Stack Developer</p>
+                                    <p className="text-foreground/70 font-sans mt-2">Building modern web applications with Next.js and React</p>
                                 </div>
                             </div>
                         </div>

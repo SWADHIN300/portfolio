@@ -11,7 +11,6 @@ const projects = [
         tech: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Chart.js"],
         liveUrl: "https://coin-tracking-7mso.vercel.app/",
         githubUrl: "https://github.com/SWADHIN300/coin-tracking",
-        gradient: "from-purple-500 to-pink-500",
     },
     {
         title: "Stock Tracker",
@@ -19,65 +18,46 @@ const projects = [
         tech: ["Next.js", "React", "TypeScript", "API Integration"],
         liveUrl: null,
         githubUrl: "https://github.com/SWADHIN300/stock-tracker",
-        gradient: "from-blue-500 to-cyan-500",
-    },
-    {
-        title: "Gift",
-        description: "An interactive gift application with beautiful animations and user-friendly interface for creating and sharing digital gifts.",
-        tech: ["Next.js", "React", "TypeScript", "Tailwind CSS"],
-        liveUrl: "https://gift-two-ivory.vercel.app/",
-        githubUrl: "https://github.com/SWADHIN300/gift",
-        gradient: "from-pink-500 to-rose-500",
     },
 ];
 
 export default function Projects() {
     return (
-        <section id="projects" className="min-h-screen py-20 px-4">
+        <section id="projects" className="min-h-screen py-20 px-4 border-t-4 border-foreground">
             <div className="max-w-6xl mx-auto">
                 <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.6 }}
                     viewport={{ once: true }}
                 >
-                    <h2 className="text-4xl md:text-5xl font-bold mb-12">
-                        <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
-                            Featured Projects
-                        </span>
+                    <h2 className="text-6xl md:text-8xl font-display mb-16 uppercase tracking-tighter border-b-8 border-foreground pb-4 inline-block">
+                        Featured Projects
                     </h2>
-
-                    <div className="grid md:grid-cols-2 gap-8">
+                    <div className="grid md:grid-cols-2 gap-12">
                         {projects.map((project, index) => (
                             <motion.div
                                 key={project.title}
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
-                                whileHover={{
-                                    y: -8,
-                                    transition: { duration: 0.3 }
-                                }}
-                                transition={{ duration: 0.6, delay: index * 0.2 }}
+                                transition={{ duration: 0.6, delay: index * 0.1 }}
                                 viewport={{ once: true }}
-                                className="group relative"
+                                className="group"
                             >
-                                {/* Gradient border effect */}
-                                <div className={`absolute -inset-0.5 bg-gradient-to-r ${project.gradient} rounded-lg blur opacity-30 group-hover:opacity-60 transition duration-300`}></div>
-
-                                <div className="relative bg-black border border-gray-800 rounded-lg p-6 hover:border-gray-700 transition-all duration-300">
-                                    <h3 className={`text-2xl font-bold mb-3 bg-gradient-to-r ${project.gradient} bg-clip-text text-transparent`}>
+                                <div className="bg-background border-4 border-foreground p-8 shadow-hard hover:-translate-x-2 hover:-translate-y-2 transition-all duration-300">
+                                    <h3 className="text-4xl font-display font-bold mb-4 uppercase tracking-tight">
                                         {project.title}
                                     </h3>
 
-                                    <p className="text-gray-400 mb-4 leading-relaxed">
+                                    <p className="text-foreground text-lg mb-6 leading-relaxed font-sans">
                                         {project.description}
                                     </p>
 
-                                    <div className="flex flex-wrap gap-2 mb-6">
+                                    <div className="flex flex-wrap gap-2 mb-8">
                                         {project.tech.map((tech) => (
                                             <span
                                                 key={tech}
-                                                className="px-3 py-1 text-xs font-mono bg-gradient-to-r from-gray-800 to-gray-900 text-gray-300 rounded-full border border-gray-700"
+                                                className="px-3 py-1 text-sm font-mono border-2 border-foreground bg-foreground text-background"
                                             >
                                                 {tech}
                                             </span>
@@ -86,39 +66,25 @@ export default function Projects() {
 
                                     <div className="flex gap-4">
                                         {project.liveUrl && (
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                asChild
-                                                className="group/btn border-purple-500/50 hover:border-purple-500 hover:bg-purple-500/10"
-                                            >
-                                                <a
-                                                    href={project.liveUrl}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="flex items-center gap-2"
-                                                >
-                                                    <ExternalLink className="w-4 h-4" />
-                                                    Live Demo
-                                                </a>
-                                            </Button>
-                                        )}
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            asChild
-                                            className="group/btn hover:bg-gray-800"
-                                        >
                                             <a
-                                                href={project.githubUrl}
+                                                href={project.liveUrl}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="flex items-center gap-2"
+                                                className="btn-neobrutal flex items-center gap-2 text-sm"
                                             >
-                                                <Github className="w-4 h-4" />
-                                                GitHub
+                                                <ExternalLink className="w-4 h-4" />
+                                                Live Demo
                                             </a>
-                                        </Button>
+                                        )}
+                                        <a
+                                            href={project.githubUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="btn-neobrutal flex items-center gap-2 text-sm"
+                                        >
+                                            <Github className="w-4 h-4" />
+                                            GitHub
+                                        </a>
                                     </div>
                                 </div>
                             </motion.div>

@@ -34,83 +34,52 @@ export default function Contact() {
                     transition={{ duration: 0.6 }}
                     viewport={{ once: true }}
                 >
-                    <h2 className="text-3xl md:text-4xl font-bold mb-6">
-                        <span className="bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
-                            Get in Touch
-                        </span>
+                    <h2 className="text-7xl md:text-9xl font-display mb-8 uppercase tracking-tighter border-b-8 border-foreground pb-4 inline-block">
+                        Get in Touch
                     </h2>
 
-                    <p className="text-gray-400 mb-4 text-lg">
+                    <p className="text-foreground mb-4 text-xl font-sans">
                         If you have any inquiries, please feel free to reach out.
                     </p>
-                    <p className="text-gray-400 mb-8">
-                        You can contact me via email at{" "}
+                    <p className="text-foreground mb-12 font-sans border-2 border-foreground p-4 bg-background inline-block">
+                        EMAIL:{" "}
                         <a
                             href="mailto:your.email@example.com"
-                            className="text-white hover:text-purple-400 transition-colors"
+                            className="font-bold underline decoration-2 hover:decoration-4 transition-all"
                         >
                             your.email@example.com
                         </a>
                     </p>
 
                     {/* Follow me section */}
-                    <h3 className="text-xl font-semibold mb-6 text-gray-300">Follow me</h3>
+                    <h3 className="text-2xl font-display font-bold mb-6 border-l-4 border-foreground pl-4 uppercase">Follow Me</h3>
 
-                    <div className="flex gap-4 mb-12">
-                        <a
-                            href="https://github.com/SWADHIN300"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="p-3 bg-gray-900/50 border border-gray-800 rounded-lg hover:border-gray-600 hover:bg-gray-800/50 transition-all duration-300"
-                            aria-label="GitHub"
-                        >
-                            <Github className="w-6 h-6 text-gray-400 hover:text-white transition-colors" />
-                        </a>
-
-                        <a
-                            href="https://linkedin.com/in/yourprofile"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="p-3 bg-gray-900/50 border border-gray-800 rounded-lg hover:border-gray-600 hover:bg-gray-800/50 transition-all duration-300"
-                            aria-label="LinkedIn"
-                        >
-                            <Linkedin className="w-6 h-6 text-gray-400 hover:text-white transition-colors" />
-                        </a>
-
-                        <a
-                            href="https://x.com/swadhin_ra35911"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="p-3 bg-gray-900/50 border border-gray-800 rounded-lg hover:border-gray-600 hover:bg-gray-800/50 transition-all duration-300"
-                            aria-label="X (Twitter)"
-                        >
-                            <Twitter className="w-6 h-6 text-gray-400 hover:text-white transition-colors" />
-                        </a>
-
-                        <a
-                            href="https://instagram.com/yourprofile"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="p-3 bg-gray-900/50 border border-gray-800 rounded-lg hover:border-gray-600 hover:bg-gray-800/50 transition-all duration-300"
-                            aria-label="Instagram"
-                        >
-                            <Instagram className="w-6 h-6 text-gray-400 hover:text-white transition-colors" />
-                        </a>
-
-                        <a
-                            href="mailto:your.email@example.com"
-                            className="p-3 bg-gray-900/50 border border-gray-800 rounded-lg hover:border-gray-600 hover:bg-gray-800/50 transition-all duration-300"
-                            aria-label="Email"
-                        >
-                            <Mail className="w-6 h-6 text-gray-400 hover:text-white transition-colors" />
-                        </a>
+                    <div className="flex flex-wrap gap-4 mb-16">
+                        {[
+                            { icon: Github, label: "GitHub", href: "https://github.com/SWADHIN300" },
+                            { icon: Linkedin, label: "LinkedIn", href: "https://linkedin.com/in/yourprofile" },
+                            { icon: Twitter, label: "X (Twitter)", href: "https://x.com/swadhin_ra35911" },
+                            { icon: Instagram, label: "Instagram", href: "https://instagram.com/yourprofile" },
+                            { icon: Mail, label: "Email", href: "mailto:your.email@example.com" },
+                        ].map((social, idx) => (
+                            <a
+                                key={idx}
+                                href={social.href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-4 bg-background border-2 border-foreground hover:shadow-hard hover:-translate-x-1 hover:-translate-y-1 transition-all"
+                                aria-label={social.label}
+                            >
+                                <social.icon className="w-8 h-8 text-foreground" />
+                            </a>
+                        ))}
                     </div>
 
                     {/* Contact Form */}
-                    <div className="bg-gray-900/30 border border-gray-800 rounded-2xl p-8 mb-16">
-                        <h3 className="text-2xl font-bold mb-6 text-center text-gray-200">Fill this form</h3>
+                    <div className="bg-background border-4 border-foreground p-8 mb-16 shadow-hard-lg">
+                        <h3 className="text-3xl font-display font-bold mb-8 uppercase text-center border-b-2 border-foreground pb-4">Fill this form</h3>
 
-                        <form onSubmit={handleSubmit} className="space-y-4">
+                        <form onSubmit={handleSubmit} className="space-y-6">
                             <div>
                                 <input
                                     type="text"
@@ -118,7 +87,7 @@ export default function Contact() {
                                     placeholder="Full Name"
                                     value={formData.fullName}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 bg-black border border-gray-800 rounded-lg text-gray-300 placeholder-gray-500 focus:outline-none focus:border-gray-600 transition-colors"
+                                    className="w-full px-4 py-3 bg-background border-2 border-foreground text-foreground placeholder-foreground/50 focus:outline-none focus:bg-foreground focus:text-background transition-all font-sans text-lg"
                                     required
                                 />
                             </div>
@@ -130,7 +99,7 @@ export default function Contact() {
                                     placeholder="Phone No"
                                     value={formData.phone}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 bg-black border border-gray-800 rounded-lg text-gray-300 placeholder-gray-500 focus:outline-none focus:border-gray-600 transition-colors"
+                                    className="w-full px-4 py-3 bg-background border-2 border-foreground text-foreground placeholder-foreground/50 focus:outline-none focus:bg-foreground focus:text-background transition-all font-sans text-lg"
                                     required
                                 />
                             </div>
@@ -142,7 +111,7 @@ export default function Contact() {
                                     placeholder="Email"
                                     value={formData.email}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 bg-black border border-gray-800 rounded-lg text-gray-300 placeholder-gray-500 focus:outline-none focus:border-gray-600 transition-colors"
+                                    className="w-full px-4 py-3 bg-background border-2 border-foreground text-foreground placeholder-foreground/50 focus:outline-none focus:bg-foreground focus:text-background transition-all font-sans text-lg"
                                     required
                                 />
                             </div>
@@ -154,24 +123,24 @@ export default function Contact() {
                                     value={formData.message}
                                     onChange={handleChange}
                                     rows={5}
-                                    className="w-full px-4 py-3 bg-black border border-gray-800 rounded-lg text-gray-300 placeholder-gray-500 focus:outline-none focus:border-gray-600 transition-colors resize-none"
+                                    className="w-full px-4 py-3 bg-background border-2 border-foreground text-foreground placeholder-foreground/50 focus:outline-none focus:bg-foreground focus:text-background transition-all font-sans text-lg resize-none"
                                     required
                                 />
                             </div>
 
                             <button
                                 type="submit"
-                                className="w-full py-3 bg-white text-black font-semibold rounded-lg hover:bg-gray-200 transition-colors duration-300"
+                                className="w-full py-4 bg-foreground text-background font-display text-2xl uppercase hover:translate-x-[-4px] hover:translate-y-[-4px] hover:shadow-hard transition-all duration-300"
                             >
-                                Submit
+                                Send Message
                             </button>
                         </form>
                     </div>
 
                     {/* Footer bar */}
-                    <div className="border-t border-gray-800 pt-8 text-center">
-                        <p className="text-gray-500 text-sm">
-                            © {new Date().getFullYear()} Developed with ❤️ by Swadhin
+                    <div className="border-t-4 border-foreground pt-8 text-center">
+                        <p className="text-foreground text-sm uppercase font-mono">
+                            © {new Date().getFullYear()} Designed & Developed by Swadhin
                         </p>
                     </div>
                 </motion.div>

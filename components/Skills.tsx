@@ -44,7 +44,7 @@ const skills = [
 
 export default function Skills() {
     return (
-        <section id="skills" className="min-h-screen py-20 px-4">
+        <section id="skills" className="min-h-screen py-20 px-4 border-t-4 border-foreground">
             <div className="max-w-6xl mx-auto">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -52,14 +52,11 @@ export default function Skills() {
                     transition={{ duration: 0.6 }}
                     viewport={{ once: true }}
                 >
-                    <h2 className="text-3xl md:text-4xl font-bold mb-12">
-                        <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                            Skills & Technologies
-                        </span>
+                    <h2 className="text-6xl md:text-8xl font-display mb-16 uppercase tracking-tighter border-b-8 border-foreground pb-4 inline-block">
+                        Capabilities
                     </h2>
 
-                    {/* Pill badges layout */}
-                    <div className="flex flex-wrap gap-3">
+                    <div className="flex flex-wrap gap-4">
                         {skills.map((skill, index) => {
                             const Icon = skill.icon;
                             return (
@@ -67,14 +64,17 @@ export default function Skills() {
                                     key={skill.name}
                                     initial={{ opacity: 0, scale: 0.8 }}
                                     whileInView={{ opacity: 1, scale: 1 }}
-                                    transition={{ duration: 0.3, delay: index * 0.03 }}
+                                    transition={{ duration: 0.3, delay: index * 0.02 }}
                                     viewport={{ once: true }}
-                                    whileHover={{ scale: 1.05 }}
-                                    className="group relative"
+                                    whileHover={{
+                                        translateY: -4,
+                                        translateX: -4,
+                                    }}
+                                    className="group"
                                 >
-                                    <div className="px-4 py-2.5 bg-gray-900/50 border border-gray-800 rounded-full flex items-center gap-2 hover:border-gray-600 hover:bg-gray-800/50 transition-all duration-300 cursor-default">
-                                        <Icon className="w-4 h-4 text-gray-400 group-hover:text-gray-300 transition-colors" />
-                                        <span className="text-sm text-gray-300 group-hover:text-white transition-colors font-medium">
+                                    <div className="px-6 py-4 bg-background border-2 border-foreground hover:shadow-hard transition-all cursor-default flex items-center gap-3">
+                                        <Icon className="w-6 h-6 text-foreground" />
+                                        <span className="text-xl text-foreground font-display uppercase tracking-tight">
                                             {skill.name}
                                         </span>
                                     </div>
