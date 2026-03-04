@@ -16,7 +16,7 @@ export default function Hero() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8 }}
                 >
-                    <h1 className="text-7xl md:text-9xl font-display mb-6 uppercase tracking-tighter">
+                    <h1 className="text-7xl md:text-9xl  font-display mb-6 uppercase tracking-tighter">
                         Swadhin
                     </h1>
                     <p className="text-3xl md:text-5xl mb-8 font-display uppercase border-y-4 border-foreground py-4 inline-block tracking-widest">

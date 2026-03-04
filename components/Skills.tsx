@@ -1,48 +1,32 @@
 "use client";
 
 import { motion } from "framer-motion";
-import {
-    Code2,
-    Database,
-    Server,
-    Layers,
-    Zap,
-    Box,
-    GitBranch,
-    Globe,
-    FileCode,
-    Braces,
-    Terminal,
-    Wrench,
-    Shield,
-    Cloud
-} from "lucide-react";
+import { ExternalLink } from "lucide-react";
+import { useEffect, useState } from "react";
+import { defaultSkills, iconMap, type Skill } from "@/lib/data";
 
-const skills = [
-    { name: "React", icon: Braces },
-    { name: "Next.js", icon: Layers },
-    { name: "TypeScript", icon: FileCode },
-    { name: "JavaScript", icon: Terminal },
-    { name: "Express", icon: Server },
-    { name: "Node.js", icon: Server },
-    { name: "PostgreSQL", icon: Database },
-    { name: "MongoDB", icon: Database },
-    { name: "Prisma", icon: Layers },
-    { name: "Redis", icon: Database },
-    { name: "Tailwind CSS", icon: Zap },
-    { name: "Framer Motion", icon: Zap },
-    { name: "Git", icon: GitBranch },
-    { name: "GitHub", icon: GitBranch },
-    { name: "Docker", icon: Box },
-    { name: "Vercel", icon: Cloud },
-    { name: "REST APIs", icon: Globe },
-    { name: "GraphQL", icon: Layers },
-    { name: "MySQL", icon: Database },
-    { name: "HTML/CSS", icon: Globe },
-    { name: "VS Code", icon: Code2 },
-];
+type StoredSkill = { name: string; iconKey: string; url: string };
 
 export default function Skills() {
+    const [skills, setSkills] = useState<Skill[]>(defaultSkills);
+
+    useEffect(() => {
+        try {
+            const stored = localStorage.getItem("admin_skills");
+            if (stored) {
+                const extra: StoredSkill[] = JSON.parse(stored);
+                const extraSkills: Skill[] = extra.map((s) => ({
+                    name: s.name,
+                    icon: iconMap[s.iconKey] ?? iconMap["Globe"],
+                    url: s.url,
+                }));
+                setSkills([...defaultSkills, ...extraSkills]);
+            }
+        } catch {
+            // ignore
+        }
+    }, []);
+
     return (
         <section id="skills" className="min-h-screen py-20 px-4 border-t-4 border-foreground">
             <div className="max-w-6xl mx-auto">
@@ -60,8 +44,11 @@ export default function Skills() {
                         {skills.map((skill, index) => {
                             const Icon = skill.icon;
                             return (
-                                <motion.div
-                                    key={skill.name}
+                                <motion.a
+                                    key={skill.name + index}
+                                    href={skill.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     initial={{ opacity: 0, scale: 0.8 }}
                                     whileInView={{ opacity: 1, scale: 1 }}
                                     transition={{ duration: 0.3, delay: index * 0.02 }}
@@ -72,13 +59,14 @@ export default function Skills() {
                                     }}
                                     className="group"
                                 >
-                                    <div className="px-6 py-4 bg-background border-2 border-foreground hover:shadow-hard transition-all cursor-default flex items-center gap-3">
+                                    <div className="px-6 py-4 bg-background border-2 border-foreground hover:shadow-hard transition-all cursor-pointer flex items-center gap-3 relative">
                                         <Icon className="w-6 h-6 text-foreground" />
                                         <span className="text-xl text-foreground font-display uppercase tracking-tight">
                                             {skill.name}
                                         </span>
+                                        <ExternalLink className="w-3 h-3 text-foreground opacity-0 group-hover:opacity-60 transition-opacity absolute top-2 right-2" />
                                     </div>
-                                </motion.div>
+                                </motion.a>
                             );
                         })}
                     </div>
@@ -87,4 +75,3 @@ export default function Skills() {
         </section>
     );
 }
-

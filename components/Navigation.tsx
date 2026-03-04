@@ -36,7 +36,7 @@ export default function Navigation() {
         >
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex items-center justify-between h-16">
-                    <a href="#" className="text-2xl font-display font-bold border-2 border-foreground px-2 hover:shadow-hard transition-all">
+                    <a href="#" className="text-2xl text-white font-display font-bold border-2 border-foreground px-2 hover:shadow-hard transition-all">
                         SWADHIN
                     </a>
 

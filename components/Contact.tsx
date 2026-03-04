@@ -44,10 +44,10 @@ export default function Contact() {
                     <p className="text-foreground mb-12 font-sans border-2 border-foreground p-4 bg-background inline-block">
                         EMAIL:{" "}
                         <a
-                            href="mailto:your.email@example.com"
+                            href="mailto:swadhinraha81@gmail.com"
                             className="font-bold underline decoration-2 hover:decoration-4 transition-all"
                         >
-                            your.email@example.com
+                            swadhinraha81@gmail.com
                         </a>
                     </p>
 
@@ -57,10 +57,8 @@ export default function Contact() {
                     <div className="flex flex-wrap gap-4 mb-16">
                         {[
                             { icon: Github, label: "GitHub", href: "https://github.com/SWADHIN300" },
-                            { icon: Linkedin, label: "LinkedIn", href: "https://linkedin.com/in/yourprofile" },
+                            { icon: Linkedin, label: "LinkedIn", href: "https://www.linkedin.com/in/swadhin-raha-27067226b/" },
                             { icon: Twitter, label: "X (Twitter)", href: "https://x.com/swadhin_ra35911" },
-                            { icon: Instagram, label: "Instagram", href: "https://instagram.com/yourprofile" },
-                            { icon: Mail, label: "Email", href: "mailto:your.email@example.com" },
                         ].map((social, idx) => (
                             <a
                                 key={idx}
@@ -81,53 +79,41 @@ export default function Contact() {
 
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div>
+                                <label className="block text-sm font-bold uppercase mb-2">Full Name</label>
                                 <input
                                     type="text"
                                     name="fullName"
-                                    placeholder="Full Name"
                                     value={formData.fullName}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 bg-background border-2 border-foreground text-foreground placeholder-foreground/50 focus:outline-none focus:bg-foreground focus:text-background transition-all font-sans text-lg"
                                     required
+                                    className="w-full p-3 border-2 border-foreground bg-background text-foreground font-sans focus:outline-none focus:shadow-hard transition-all"
+                                    placeholder="Your name"
                                 />
                             </div>
-
                             <div>
-                                <input
-                                    type="tel"
-                                    name="phone"
-                                    placeholder="Phone No"
-                                    value={formData.phone}
-                                    onChange={handleChange}
-                                    className="w-full px-4 py-3 bg-background border-2 border-foreground text-foreground placeholder-foreground/50 focus:outline-none focus:bg-foreground focus:text-background transition-all font-sans text-lg"
-                                    required
-                                />
-                            </div>
-
-                            <div>
+                                <label className="block text-sm font-bold uppercase mb-2">Email</label>
                                 <input
                                     type="email"
                                     name="email"
-                                    placeholder="Email"
                                     value={formData.email}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-3 bg-background border-2 border-foreground text-foreground placeholder-foreground/50 focus:outline-none focus:bg-foreground focus:text-background transition-all font-sans text-lg"
                                     required
+                                    className="w-full p-3 border-2 border-foreground bg-background text-foreground font-sans focus:outline-none focus:shadow-hard transition-all"
+                                    placeholder="your@email.com"
                                 />
                             </div>
-
                             <div>
+                                <label className="block text-sm font-bold uppercase mb-2">Message</label>
                                 <textarea
                                     name="message"
-                                    placeholder="Message"
                                     value={formData.message}
                                     onChange={handleChange}
-                                    rows={5}
-                                    className="w-full px-4 py-3 bg-background border-2 border-foreground text-foreground placeholder-foreground/50 focus:outline-none focus:bg-foreground focus:text-background transition-all font-sans text-lg resize-none"
                                     required
+                                    rows={5}
+                                    className="w-full p-3 border-2 border-foreground bg-background text-foreground font-sans focus:outline-none focus:shadow-hard transition-all resize-none"
+                                    placeholder="Your message..."
                                 />
                             </div>
-
                             <button
                                 type="submit"
                                 className="w-full py-4 bg-foreground text-background font-display text-2xl uppercase hover:translate-x-[-4px] hover:translate-y-[-4px] hover:shadow-hard transition-all duration-300"
