@@ -312,30 +312,58 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
         localStorage.setItem("admin_skills", JSON.stringify(updated));
     }
 
+    const NAV_SECTIONS = [
+        { label: "Home",       hash: "/" },
+        { label: "About",      hash: "/#about" },
+        { label: "Experience", hash: "/#experience" },
+        { label: "Projects",   hash: "/#projects" },
+        { label: "Blogs",      hash: "/#blogs" },
+        { label: "Contact",    hash: "/#contact" },
+        { label: "Terminal",   hash: "/#terminal" },
+        { label: "Uses",       hash: "/#uses" },
+        { label: "Notes",      hash: "/#notes" },
+        { label: "Resume",     hash: "/resume.pdf" },
+    ];
+
     return (
         <div className="min-h-screen bg-black">
             {/* Header */}
-            <header className="border-b-4 border-white px-6 py-4 flex items-center justify-between sticky top-0 bg-black z-40">
-                <div className="flex items-center gap-4">
-                    <div className="w-9 h-9 bg-white flex items-center justify-center">
-                        <Lock className="w-4 h-4 text-black" />
+            <header className="border-b-4 border-white sticky top-0 bg-black z-40">
+                <div className="px-6 py-4 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <div className="w-9 h-9 bg-white flex items-center justify-center">
+                            <Lock className="w-4 h-4 text-black" />
+                        </div>
+                        <span className="text-2xl text-white font-display uppercase tracking-tighter">Admin Dashboard</span>
                     </div>
-                    <span className="text-2xl text-white font-display uppercase tracking-tighter">Admin Dashboard</span>
+                    <div className="flex items-center gap-3">
+                        <Link
+                            href="/"
+                            target="_blank"
+                            className="border-2 border-white text-white text-sm px-4 py-1.5 flex items-center gap-2 hover:bg-white hover:text-black transition-all font-display uppercase"
+                        >
+                            <ExternalLink className="w-3 h-3" /> View Site
+                        </Link>
+                        <button
+                            onClick={onLogout}
+                            className="border-2 border-white text-white text-sm px-4 py-1.5 flex items-center gap-2 hover:bg-white hover:text-black transition-all font-display uppercase"
+                        >
+                            <LogOut className="w-3 h-3" /> Logout
+                        </button>
+                    </div>
                 </div>
-                <div className="flex items-center gap-3">
-                    <Link
-                        href="/"
-                        target="_blank"
-                        className="border-2 border-white text-white text-sm px-4 py-1.5 flex items-center gap-2 hover:bg-white hover:text-black transition-all font-display uppercase"
-                    >
-                        <ExternalLink className="w-3 h-3" /> View Site
-                    </Link>
-                    <button
-                        onClick={onLogout}
-                        className="border-2 border-white text-white text-sm px-4 py-1.5 flex items-center gap-2 hover:bg-white hover:text-black transition-all font-display uppercase"
-                    >
-                        <LogOut className="w-3 h-3" /> Logout
-                    </button>
+                {/* Section Quick-Links */}
+                <div className="px-6 pb-3 flex flex-wrap gap-2">
+                    {NAV_SECTIONS.map(({ label, hash }) => (
+                        <Link
+                            key={label}
+                            href={hash}
+                            target="_blank"
+                            className="border border-white/40 text-white/60 hover:border-white hover:text-white text-xs px-3 py-1.5 font-mono uppercase tracking-wider transition-all"
+                        >
+                            {label}
+                        </Link>
+                    ))}
                 </div>
             </header>
 

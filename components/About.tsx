@@ -2,43 +2,69 @@
 
 import { motion } from "framer-motion";
 
+const fadeUp = (delay = 0) => ({
+    initial: { opacity: 0, y: 18 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true },
+    transition: { duration: 0.55, delay, ease: "easeOut" },
+});
+
 export default function About() {
     return (
-        <section id="about" className="min-h-screen py-20 px-4">
-            <div className="max-w-4xl mx-auto">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                    viewport={{ once: true }}
+        <section id="about" className="section-container">
+            <div className="max-w-3xl">
+                <motion.p className="section-label mb-4" {...fadeUp(0)}>// 01</motion.p>
+
+                <motion.h2
+                    {...fadeUp(0.08)}
+                    style={{
+                        fontFamily: "var(--font-space-mono), monospace",
+                        color: "var(--fg)",
+                        fontSize: "clamp(2.5rem, 7vw, 5rem)",
+                        fontWeight: 700,
+                        textTransform: "uppercase",
+                        lineHeight: 1,
+                        letterSpacing: "-0.02em",
+                        marginBottom: "2.5rem",
+                    }}
                 >
-                    <h2 className="text-7xl md:text-9xl font-display mb-12 uppercase tracking-tighter border-b-8 border-foreground pb-4 inline-block">
-                        About Me
-                    </h2>
+                    About Me
+                </motion.h2>
 
-                    <div className="space-y-6 text-foreground text-xl font-sans border-2 border-foreground p-8 bg-background shadow-hard-lg">
-                        <p>
-                            I&apos;m a Full Stack Developer passionate about building modern, scalable web applications
-                            that solve real-world problems. With expertise in both frontend and backend technologies,
-                            I create seamless user experiences backed by robust infrastructure.
-                        </p>
+                <motion.div className="clean-card p-7 mb-8" {...fadeUp(0.16)}>
+                    <p className="text-sm leading-relaxed mb-4" style={{ color: "var(--fg-muted)", fontFamily: "var(--font-space-mono), monospace" }}>
+                        I&apos;m a Full Stack Developer passionate about building modern, scalable web
+                        applications that solve real-world problems. With expertise in both frontend
+                        and backend technologies, I create seamless user experiences backed by robust
+                        infrastructure.
+                    </p>
+                    <p className="text-sm leading-relaxed" style={{ color: "var(--fg-muted)", fontFamily: "var(--font-space-mono), monospace" }}>
+                        My approach combines clean code, performance optimization, and user-centric
+                        design to deliver applications that not only work well but feel great to use.
+                    </p>
+                </motion.div>
 
-                        <p>
-                            My approach combines clean code, performance optimization, and user-centric design
-                            to deliver applications that not only work well but feel great to use.
-                        </p>
+                <motion.p className="section-label mb-5" {...fadeUp(0.22)}>// experience</motion.p>
 
-                        <div className="pt-12">
-                            <h3 className="text-4xl font-display font-bold mb-8 uppercase border-l-8 border-foreground pl-4">Experience</h3>
-                            <div className="space-y-8">
-                                <div className="border-2 border-foreground p-6 shadow-hard bg-background">
-                                    <p className="text-foreground text-sm font-mono mb-2">2023 - PRESENT</p>
-                                    <p className="text-foreground font-display text-2xl uppercase">Full Stack Developer</p>
-                                    <p className="text-foreground/70 font-sans mt-2">Building modern web applications with Next.js and React</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <motion.div className="clean-card p-6" {...fadeUp(0.28)}>
+                    <p
+                        className="text-[10px] tracking-widest uppercase mb-2"
+                        style={{ color: "var(--fg-muted)", fontFamily: "var(--font-space-mono), monospace" }}
+                    >
+                        2023 — Present
+                    </p>
+                    <p
+                        className="text-lg font-bold uppercase tracking-wide mb-2"
+                        style={{ fontFamily: "var(--font-space-mono), monospace", color: "var(--fg)" }}
+                    >
+                        Full Stack Developer
+                    </p>
+                    <p
+                        className="text-sm"
+                        style={{ color: "var(--fg-muted)", fontFamily: "var(--font-space-mono), monospace" }}
+                    >
+                        Building modern web applications with Next.js and React.
+                    </p>
                 </motion.div>
             </div>
         </section>

@@ -15,62 +15,71 @@ export default function Skills() {
             const stored = localStorage.getItem("admin_skills");
             if (stored) {
                 const extra: StoredSkill[] = JSON.parse(stored);
-                const extraSkills: Skill[] = extra.map((s) => ({
+                const extras: Skill[] = extra.map((s) => ({
                     name: s.name,
                     icon: iconMap[s.iconKey] ?? iconMap["Globe"],
                     url: s.url,
                 }));
-                setSkills([...defaultSkills, ...extraSkills]);
+                setSkills([...defaultSkills, ...extras]);
             }
-        } catch {
-            // ignore
-        }
+        } catch { /* ignore */ }
     }, []);
 
     return (
-        <section id="skills" className="min-h-screen py-20 px-4 border-t-4 border-foreground">
-            <div className="max-w-6xl mx-auto">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
-                    viewport={{ once: true }}
+        <section id="skills" className="section-container">
+            <div className="max-w-5xl">
+                <motion.p
+                    className="section-label mb-4"
+                    initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
+                    transition={{ duration: 0.4 }}
                 >
-                    <h2 className="text-6xl md:text-8xl font-display mb-16 uppercase tracking-tighter border-b-8 border-foreground pb-4 inline-block">
-                        Capabilities
-                    </h2>
+                    // 03
+                </motion.p>
 
-                    <div className="flex flex-wrap gap-4">
-                        {skills.map((skill, index) => {
-                            const Icon = skill.icon;
-                            return (
-                                <motion.a
-                                    key={skill.name + index}
-                                    href={skill.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    initial={{ opacity: 0, scale: 0.8 }}
-                                    whileInView={{ opacity: 1, scale: 1 }}
-                                    transition={{ duration: 0.3, delay: index * 0.02 }}
-                                    viewport={{ once: true }}
-                                    whileHover={{
-                                        translateY: -4,
-                                        translateX: -4,
-                                    }}
-                                    className="group"
-                                >
-                                    <div className="px-6 py-4 bg-background border-2 border-foreground hover:shadow-hard transition-all cursor-pointer flex items-center gap-3 relative">
-                                        <Icon className="w-6 h-6 text-foreground" />
-                                        <span className="text-xl text-foreground font-display uppercase tracking-tight">
-                                            {skill.name}
-                                        </span>
-                                        <ExternalLink className="w-3 h-3 text-foreground opacity-0 group-hover:opacity-60 transition-opacity absolute top-2 right-2" />
-                                    </div>
-                                </motion.a>
-                            );
-                        })}
-                    </div>
-                </motion.div>
+                <motion.h2
+                    initial={{ opacity: 0, y: 16 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: 0.06 }}
+                    style={{
+                        fontFamily: "var(--font-space-mono), monospace",
+                        color: "var(--fg)",
+                        fontSize: "clamp(2.5rem, 7vw, 5rem)",
+                        fontWeight: 700,
+                        textTransform: "uppercase",
+                        lineHeight: 1,
+                        letterSpacing: "-0.02em",
+                        marginBottom: "3rem",
+                    }}
+                >
+                    Skills
+                </motion.h2>
+
+                <div className="flex flex-wrap gap-2">
+                    {skills.map((skill, i) => {
+                        const Icon = skill.icon;
+                        return (
+                            <motion.a
+                                key={skill.name + i}
+                                href={skill.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                whileInView={{ opacity: 1, scale: 1 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.25, delay: i * 0.025 }}
+                                className="skill-pill group relative"
+                            >
+                                <Icon size={13} style={{ flexShrink: 0 }} />
+                                {skill.name}
+                                <ExternalLink
+                                    size={9}
+                                    className="opacity-0 group-hover:opacity-40 transition-opacity absolute top-1.5 right-1.5"
+                                />
+                            </motion.a>
+                        );
+                    })}
+                </div>
             </div>
         </section>
     );
