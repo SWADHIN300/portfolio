@@ -26,7 +26,7 @@ export default function Projects() {
                     initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
                     transition={{ duration: 0.4 }}
                 >
-                    // 02
+                    {"// 02"}
                 </motion.p>
 
                 <motion.h2

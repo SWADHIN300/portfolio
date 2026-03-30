@@ -33,7 +33,7 @@ export default function Skills() {
                     initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
                     transition={{ duration: 0.4 }}
                 >
-                    // 03
+                    {"// 03"}
                 </motion.p>
 
                 <motion.h2

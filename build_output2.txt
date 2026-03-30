@@ -1,0 +1,41 @@
+
+> portfolio@0.1.0 build
+> next build
+
+ ΓÜá Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\Users\swadh\package-lock.json as the root directory.
+ To silence this warning, set `outputFileTracingRoot` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/output#caveats for more information.
+ Detected additional lockfiles: 
+   * C:\Users\swadh\portfolio\package-lock.json
+
+   Γû▓ Next.js 15.5.12
+   - Environments: .env
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully in 1894ms
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/7) ...
+   Generating static pages (1/7) 
+   Generating static pages (3/7) 
+   Generating static pages (5/7) 
+ Γ£ô Generating static pages (7/7)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                 Size  First Load JS
+Γöî Γùï /                                    19.2 kB         162 kB
+Γö£ Γùï /_not-found                            994 B         103 kB
+Γö£ Γùï /admin                                8.3 kB         152 kB
+Γö£ ╞Æ /api/contact                           126 B         102 kB
+Γöö ╞Æ /api/github-contributions              126 B         102 kB
++ First Load JS shared by all             102 kB
+  Γö£ chunks/255-ebd51be49873d76c.js         46 kB
+  Γö£ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB
+  Γöö other shared chunks (total)          1.99 kB
+
+
+Γùï  (Static)   prerendered as static content
+╞Æ  (Dynamic)  server-rendered on demand
+

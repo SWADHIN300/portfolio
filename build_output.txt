@@ -1,0 +1,24 @@
+
+> portfolio@0.1.0 build
+> next build
+
+ ΓÜá Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\Users\swadh\package-lock.json as the root directory.
+ To silence this warning, set `outputFileTracingRoot` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/output#caveats for more information.
+ Detected additional lockfiles: 
+   * C:\Users\swadh\portfolio\package-lock.json
+
+   Γû▓ Next.js 15.5.12
+   - Environments: .env
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully in 3.2s
+   Linting and checking validity of types ...
+
+Failed to compile.
+
+./app/page.tsx
+723:66  Error: Comments inside children section of tag should be placed inside braces  react/jsx-no-comment-textnodes
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules

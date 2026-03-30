@@ -22,7 +22,7 @@ export default function Hero() {
                     className="section-label mb-6"
                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}
                 >
-                    // portfolio
+                    {"// portfolio"}
                 </motion.p>
 
                 {/* Name with animated characters */}
