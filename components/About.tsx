@@ -13,7 +13,7 @@ export default function About() {
     return (
         <section id="about" className="section-container">
             <div className="max-w-3xl">
-                <motion.p className="section-label mb-4" {...fadeUp(0)}>// 01</motion.p>
+                <motion.p className="section-label mb-4" {...fadeUp(0)}>{"// 01"}</motion.p>
 
                 <motion.h2
                     {...fadeUp(0.08)}
@@ -44,7 +44,7 @@ export default function About() {
                     </p>
                 </motion.div>
 
-                <motion.p className="section-label mb-5" {...fadeUp(0.22)}>// experience</motion.p>
+                <motion.p className="section-label mb-5" {...fadeUp(0.22)}>{"// experience"}</motion.p>
 
                 <motion.div className="clean-card p-6" {...fadeUp(0.28)}>
                     <p

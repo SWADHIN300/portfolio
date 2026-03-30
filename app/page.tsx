@@ -12,6 +12,7 @@ import {
     X as XIcon, Music, Link as LinkIcon,
 } from "lucide-react";
 import { defaultProjects, defaultSkills } from "@/lib/data";
+import Image from "next/image";
 
 /* ══════════════════════════════════════════╗
    HELPERS
@@ -417,7 +418,7 @@ function GithubGrid({ style }: { style?: React.CSSProperties }) {
 
         load();
         return () => { active = false; };
-    }, []);
+    }, [YEAR]);
 
     // Month labels: one per column where month changes
     const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -603,7 +604,7 @@ function DesktopWidgets() {
 function HeroContent({ onNavigate }: { onNavigate: (id: string) => void }) {
     return (
         <div style={{ padding: "28px 32px" }}>
-            <p className="label" style={{ marginBottom: 14 }}>// swadhin raha — portfolio</p>
+            <p className="label" style={{ marginBottom: 14 }}>{"// swadhin raha — portfolio"}</p>
             <motion.h1 initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.55, ease: [0.33, 1, 0.68, 1] }}
                 className="heading-xl" style={{ marginBottom: 12 }}>Full Stack<br />Developer</motion.h1>
             <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.18 }}
@@ -646,12 +647,13 @@ function AboutContent() {
             >
                 {/* Avatar */}
                 <div style={{ position: "relative", flexShrink: 0 }}>
-                    <img
+                    <Image
                         src={TWITTER_AVATAR}
                         alt="Swadhin Raha"
+                        width={88}
+                        height={88}
+                        unoptimized
                         style={{
-                            width: 88,
-                            height: 88,
                             borderRadius: 16,
                             objectFit: "cover",
                             border: "2px solid rgba(255,255,255,0.15)",
@@ -718,7 +720,7 @@ function AboutContent() {
                 transition={{ duration: 0.4, delay: 0.08 }}
                 style={{ marginBottom: 10 }}
             >
-                <p className="label" style={{ marginBottom: 6 }}>// bio</p>
+                <p className="label" style={{ marginBottom: 6 }}>{"// bio"}</p>
                 <p style={{ color: "var(--fg-muted)", fontFamily: "var(--font-space-mono), monospace", fontSize: "0.73rem", lineHeight: 1.85 }}>
                     I&apos;m a Full Stack Developer passionate about building modern, scalable web applications.
                     With expertise in both frontend and backend technologies, I create seamless user experiences
@@ -1115,12 +1117,13 @@ function AboutHoverCard() {
 
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 18 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 16, minWidth: 0 }}>
-                    <img
+                    <Image
                         src={X_PROFILE_AVATAR}
                         alt="Swadhin"
+                        width={54}
+                        height={54}
+                        unoptimized
                         style={{
-                            width: 54,
-                            height: 54,
                             borderRadius: 14,
                             objectFit: "cover",
                             border: "1px solid rgba(255,255,255,0.16)",

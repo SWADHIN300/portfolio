@@ -53,7 +53,7 @@ export default function Contact() {
     return (
         <section id="contact" className="section-container">
             <div className="max-w-2xl">
-                <motion.p className="section-label mb-4" {...fadeUp(0)}>// 04</motion.p>
+                <motion.p className="section-label mb-4" {...fadeUp(0)}>{"// 04"}</motion.p>
 
                 <motion.h2
                     {...fadeUp(0.07)}
