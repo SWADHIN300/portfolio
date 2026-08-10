@@ -1,0 +1,334 @@
+function MusicWidget() {
+    const audioRef = useRef<HTMLAudioElement>(null);
+    const [trackInfo, setTrackInfo] = useState({
+        title: "Blinding Lights",
+        artist: "The Weeknd",
+        album: "After Hours",
+        progress: 0,
+        duration: 200,
+        isPlaying: false,
+        colors: { primary: "#ff6b35", secondary: "#e8b57d" },
+        theme: {
+            accent: "#ff6b35",
+            accentFg: "#fff8f0",
+            primary: "#e88d4a",
+            ring: "#ff6b35",
+            cardGlow: "rgba(255, 107, 53, 0.08)",
+        },
+    });
+
+    const tracks = [
+        {
+            title: "Blinding Lights",
+            artist: "The Weeknd",
+            album: "After Hours",
+            duration: 200,
+            colors: { primary: "#ff6b35", secondary: "#e8b57d" },
+            theme: {
+                accent: "#ff6b35",
+                accentFg: "#fff8f0",
+                primary: "#e88d4a",
+                ring: "#ff6b35",
+                cardGlow: "rgba(255, 107, 53, 0.08)",
+            },
+        },
+        {
+            title: "Is There Someone Else?",
+            artist: "The Weeknd",
+            album: "Dawn FM",
+            duration: 180,
+            colors: { primary: "#a855f7", secondary: "#f5e0ff" },
+            theme: {
+                accent: "#a855f7",
+                accentFg: "#faf5ff",
+                primary: "#c084fc",
+                ring: "#a855f7",
+                cardGlow: "rgba(168, 85, 247, 0.08)",
+            },
+        },
+        {
+            title: "Popular",
+            artist: "The Weeknd, Playboi Carti & Madonna",
+            album: "The Highlights",
+            duration: 190,
+            colors: { primary: "#f43f5e", secondary: "#ffe4e6" },
+            theme: {
+                accent: "#f43f5e",
+                accentFg: "#fff8f0",
+                primary: "#fb7185",
+                ring: "#f43f5e",
+                cardGlow: "rgba(244, 63, 94, 0.08)",
+            },
+        },
+        {
+            title: "Save Your Tears",
+            artist: "The Weeknd",
+            album: "After Hours",
+            duration: 215,
+            colors: { primary: "#06b6d4", secondary: "#e0f2fe" },
+            theme: {
+                accent: "#06b6d4",
+                accentFg: "#f0f9ff",
+                primary: "#22d3ee",
+                ring: "#06b6d4",
+                cardGlow: "rgba(6, 182, 212, 0.08)",
+            },
+        },
+        {
+            title: "Starboy",
+            artist: "The Weeknd ft. Daft Punk",
+            album: "Starboy",
+            duration: 230,
+            colors: { primary: "#eab308", secondary: "#fef9c3" },
+            theme: {
+                accent: "#eab308",
+                accentFg: "#fefce8",
+                primary: "#facc15",
+                ring: "#eab308",
+                cardGlow: "rgba(234, 179, 8, 0.08)",
+            },
+        },
+    ];
+
+    const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+    const [volume, setVolume] = useState(0.7);
+    const [isMuted, setIsMuted] = useState(false);
+    const [showVolume, setShowVolume] = useState(false);
+
+    useEffect(() => {
+        const root = document.documentElement;
+        const theme = trackInfo.theme;
+        root.style.setProperty('--theme-accent', theme.accent);
+        root.style.setProperty('--theme-accent-fg', theme.accentFg);
+        root.style.setProperty('--theme-primary', theme.primary);
+        root.style.setProperty('--theme-ring', theme.ring);
+        root.style.setProperty('--theme-card-glow', theme.cardGlow);
+        root.style.setProperty('--music-primary', trackInfo.colors.primary);
+        root.style.setProperty('--music-secondary', trackInfo.colors.secondary);
+        root.classList.add('music-theme-transition');
+        return () => root.classList.remove('music-theme-transition');
+    }, [trackInfo]);
+
+    useEffect(() => {
+        const audio = audioRef.current;
+        if (!audio) return;
+
+        const handleTimeUpdate = () => {
+            setTrackInfo(prev => ({
+                ...prev,
+                progress: Math.floor(audio.currentTime),
+                duration: Math.floor(audio.duration) || prev.duration,
+            }));
+        };
+
+        const handleEnded = () => {
+            playNext();
+        };
+
+        const handlePlay = () => setTrackInfo(prev => ({ ...prev, isPlaying: true }));
+        const handlePause = () => setTrackInfo(prev => ({ ...prev, isPlaying: false }));
+        const handleLoadedMetadata = () => {
+            setTrackInfo(prev => ({ ...prev, duration: Math.floor(audio.duration) || prev.duration }));
+        };
+
+        audio.volume = volume;
+        audio.addEventListener('timeupdate', handleTimeUpdate);
+        audio.addEventListener('ended', handleEnded);
+        audio.addEventListener('play', handlePlay);
+        audio.addEventListener('pause', handlePause);
+        audio.addEventListener('loadedmetadata', handleLoadedMetadata);
+
+        return () => {
+            audio.removeEventListener('timeupdate', handleTimeUpdate);
+            audio.removeEventListener('ended', handleEnded);
+            audio.removeEventListener('play', handlePlay);
+            audio.removeEventListener('pause', handlePause);
+            audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
+            audio.pause();
+        };
+    }, []);
+
+    const loadTrack = (index: number) => {
+        const track = tracks[index];
+        const audio = audioRef.current;
+        if (!audio) return;
+
+        const wasPlaying = trackInfo.isPlaying;
+        audio.pause();
+        audio.currentTime = 0;
+
+        setTrackInfo({
+            title: track.title,
+            artist: track.artist,
+            album: track.album,
+            progress: 0,
+            duration: track.duration,
+            isPlaying: wasPlaying,
+            colors: track.colors,
+            theme: track.theme,
+        });
+        setCurrentTrackIndex(index);
+
+        if (wasPlaying) {
+            audio.play().catch(() => {});
+        }
+    };
+
+    const playNext = () => {
+        const nextIndex = (currentTrackIndex + 1) % tracks.length;
+        loadTrack(nextIndex);
+    };
+
+    const playPrev = () => {
+        const prevIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
+        loadTrack(prevIndex);
+    };
+
+    const togglePlay = () => {
+        const audio = audioRef.current;
+        if (!audio) return;
+        if (trackInfo.isPlaying) {
+            audio.pause();
+        } else {
+            audio.play().catch(() => {});
+        }
+    };
+
+    const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        const audio = audioRef.current;
+        if (!audio) return;
+        const rect = e.currentTarget.getBoundingClientRect();
+        const percent = (e.clientX - rect.left) / rect.width;
+        audio.currentTime = percent * audio.duration;
+    };
+
+    const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newVolume = parseFloat(e.target.value);
+        setVolume(newVolume);
+        setIsMuted(newVolume === 0);
+        if (audioRef.current) audioRef.current.volume = newVolume;
+    };
+
+    const toggleMute = () => {
+        if (audioRef.current) {
+            audioRef.current.muted = !isMuted;
+            setIsMuted(!isMuted);
+        }
+    };
+
+    const formatTime = (seconds: number) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    };
+
+    const progressPercent = trackInfo.duration > 0
+        ? (trackInfo.progress / trackInfo.duration) * 100
+        : 0;
+
+    return (
+        <Widget style={{ display: "flex", alignItems: "center", gap: 10, position: "relative", minWidth: 260 }}>
+            <audio ref={audioRef} preload="metadata" />
+
+            <div style={{
+                width: 44,
+                height: 44,
+                borderRadius: 8,
+                background: `linear-gradient(135deg, ${trackInfo.colors.primary}, ${trackInfo.colors.secondary})`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+                boxShadow: `0 4px 12px color-mix(in oklab, ${trackInfo.colors.primary} 40%, transparent)`,
+            }}>
+                <Music size={20} style={{ color: "white" }} />
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", minWidth: 0, flex: 1 }}>
+                <p style={{ fontSize: "0.62rem", color: "var(--widget-bright)", fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{trackInfo.title}</p>
+                <p style={{ fontSize: "0.5rem", color: "var(--widget-muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{trackInfo.artist} · {trackInfo.album}</p>
+
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
+                    <span style={{ fontSize: "0.5rem", color: "var(--widget-faint)", minWidth: 35, textAlign: "right" }}>{formatTime(trackInfo.progress)}</span>
+                    <div
+                        style={{
+                            flex: 1,
+                            height: 4,
+                            background: "var(--widget-surface)",
+                            borderRadius: 2,
+                            position: "relative",
+                            cursor: "pointer",
+                        }}
+                        onClick={handleProgressClick}
+                    >
+                        <div style={{
+                            position: "absolute",
+                            left: 0,
+                            top: 0,
+                            height: "100%",
+                            width: `${progressPercent}%`,
+                            background: `linear-gradient(90deg, ${trackInfo.colors.primary}, ${trackInfo.colors.secondary})`,
+                            borderRadius: 2,
+                            transition: "width 0.1s linear",
+                        }} />
+                    </div>
+                    <span style={{ fontSize: "0.5rem", color: "var(--widget-faint)", minWidth: 35 }}>{formatTime(trackInfo.duration)}</span>
+                </div>
+            </div>
+
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <div style={{ position: "relative" }}>
+                    <button
+                        onClick={toggleMute}
+                        onMouseEnter={() => setShowVolume(true)}
+                        onMouseLeave={() => setShowVolume(false)}
+                        style={{ width: 28, height: 28, borderRadius: 6, background: "var(--widget-surface)", border: "1px solid var(--widget-border)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+                        aria-label={isMuted || volume === 0 ? "Unmute" : "Mute"}
+                    >
+                        {isMuted || volume === 0 ? (
+                            <VolumeX size={12} style={{ color: "var(--widget-muted)" }} />
+                        ) : volume < 0.5 ? (
+                            <Volume1 size={12} style={{ color: "var(--widget-strong)" }} />
+                        ) : (
+                            <Volume2 size={12} style={{ color: "var(--widget-bright)" }} />
+                        )}
+                    </button>
+                    <AnimatePresence>
+                        {showVolume && (
+                            <motion.div
+                                initial={{ opacity: 0, x: 10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 10 }}
+                                style={{ position: "absolute", bottom: "100%", right: 0, marginBottom: 8, padding: "6px 8px", background: "var(--widget-bg)", border: "1px solid var(--widget-border)", borderRadius: 6, display: "flex", alignItems: "center", gap: 6, zIndex: 100 }}
+                            >
+                                <input
+                                    type="range"
+                                    min={0}
+                                    max={1}
+                                    step={0.05}
+                                    value={volume}
+                                    onChange={handleVolumeChange}
+                                    style={{ width: 80, accentColor: trackInfo.colors.primary }}
+                                />
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+
+                <button onClick={playPrev} style={{ width: 28, height: 28, borderRadius: 6, background: "var(--widget-surface)", border: "1px solid var(--widget-border)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }} aria-label="Previous">
+                    <SkipBack size={12} style={{ color: "var(--widget-strong)" }} />
+                </button>
+                <button
+                    onClick={togglePlay}
+                    style={{ width: 36, height: 36, borderRadius: 8, background: `linear-gradient(135deg, ${trackInfo.colors.primary}, ${trackInfo.colors.secondary})`, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", boxShadow: `0 4px 14px color-mix(in oklab, ${trackInfo.colors.primary} 40%, transparent)` }}
+                    aria-label={trackInfo.isPlaying ? "Pause" : "Play"}
+                >
+                    {trackInfo.isPlaying ? <Pause size={14} style={{ color: "white" }} /> : <Play size={14} style={{ color: "white" }} />}
+                </button>
+                <button onClick={playNext} style={{ width: 28, height: 28, borderRadius: 6, background: "var(--widget-surface)", border: "1px solid var(--widget-border)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }} aria-label="Next">
+                    <SkipForward size={12} style={{ color: "var(--widget-strong)" }} />
+                </button>
+            </div>
+        </Widget>
+    );
+}

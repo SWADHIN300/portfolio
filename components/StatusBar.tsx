@@ -42,7 +42,7 @@ export default function StatusBar() {
             <div className="flex items-center gap-2">
                 <span
                     className="w-1.5 h-1.5 rounded-full"
-                    style={{ background: "#28c840", boxShadow: "0 0 4px #28c84080" }}
+                    style={{ background: "var(--status-green)", boxShadow: "0 0 4px var(--status-green-soft)" }}
                 />
                 <span>Open to Work</span>
             </div>

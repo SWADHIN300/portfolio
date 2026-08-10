@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Space_Mono, VT323 } from "next/font/google";
+import { Space_Mono } from "next/font/google";
 import "./globals.css";
 
 const spaceMono = Space_Mono({
@@ -9,17 +9,10 @@ const spaceMono = Space_Mono({
     display: "swap",
 });
 
-const vt323 = VT323({
-    subsets: ["latin"],
-    weight: ["400"],
-    variable: "--font-vt323",
-    display: "swap",
-});
-
 export const metadata: Metadata = {
-    title: "Portfolio | Full Stack Developer",
-    description: "Full Stack Developer specializing in Next.js, React, and modern web technologies",
-    keywords: ["portfolio", "developer", "next.js", "react", "typescript", "mongodb", "postgresql"],
+    title: "Swadhin Raha — Software Engineer",
+    description: "Portfolio of Swadhin Raha, a software engineer building fast, thoughtful products with React, Next.js, TypeScript, and Rust.",
+    keywords: ["Swadhin Raha", "software engineer", "portfolio", "Next.js", "React", "TypeScript", "Rust"],
 };
 
 export default function RootLayout({
@@ -28,9 +21,9 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en">
+        <html lang="en" className="dark" suppressHydrationWarning>
             <body
-                className={`${spaceMono.variable} ${vt323.variable} font-sans antialiased`}
+                className={`${spaceMono.variable} font-sans antialiased`}
             >
                 {children}
             </body>

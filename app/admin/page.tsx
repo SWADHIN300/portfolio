@@ -15,6 +15,8 @@ import {
     X,
     Save,
     Home,
+    ArrowUp,
+    ArrowDown,
 } from "lucide-react";
 import { defaultProjects, defaultSkills, iconMap, type Project } from "@/lib/data";
 import Link from "next/link";
@@ -29,7 +31,7 @@ type Tab = "projects" | "skills";
 /* ── helpers ── */
 function getExtraProjects(): Project[] {
     try {
-        return JSON.parse(localStorage.getItem("swadh_projects") ?? "[]");
+        return JSON.parse(localStorage.getItem("portfolio_projects") ?? "[]");
     } catch {
         return [];
     }
@@ -37,7 +39,7 @@ function getExtraProjects(): Project[] {
 
 function getExtraSkills(): StoredSkill[] {
     try {
-        return JSON.parse(localStorage.getItem("swadh_skills") ?? "[]");
+        return JSON.parse(localStorage.getItem("portfolio_skills") ?? "[]");
     } catch {
         return [];
     }
@@ -139,6 +141,7 @@ function AddProjectModal({ onClose, onAdd }: { onClose: () => void; onAdd: (p: P
     const [tech, setTech] = useState("");
     const [liveUrl, setLiveUrl] = useState("");
     const [githubUrl, setGithubUrl] = useState("");
+    const [imageUrl, setImageUrl] = useState("");
 
     const save = () => {
         if (!title.trim() || !description.trim() || !githubUrl.trim()) return;
@@ -148,6 +151,7 @@ function AddProjectModal({ onClose, onAdd }: { onClose: () => void; onAdd: (p: P
             tech: tech.split(",").map((t) => t.trim()).filter(Boolean),
             liveUrl: liveUrl.trim() || null,
             githubUrl: githubUrl.trim(),
+            imageUrl: imageUrl.trim(),
         });
         onClose();
     };
@@ -159,6 +163,7 @@ function AddProjectModal({ onClose, onAdd }: { onClose: () => void; onAdd: (p: P
             <Field label="Tech Stack (comma-separated)" value={tech} onChange={setTech} placeholder="Next.js, React, TypeScript" />
             <Field label="Live URL" value={liveUrl} onChange={setLiveUrl} placeholder="https://..." />
             <Field label="GitHub URL *" value={githubUrl} onChange={setGithubUrl} placeholder="https://github.com/..." />
+            <Field label="Image URL" value={imageUrl} onChange={setImageUrl} placeholder="https://... or /projects/image.png" />
             <SaveButton onClick={save} disabled={!title || !description || !githubUrl} />
         </ModalWrapper>
     );
@@ -181,7 +186,7 @@ function AddSkillModal({ onClose, onAdd }: { onClose: () => void; onAdd: (s: Sto
             <Field label="Name *" value={name} onChange={setName} placeholder="e.g. Rust" />
             <Field label="Official URL *" value={url} onChange={setUrl} placeholder="https://..." />
             <div className="mb-4">
-                <label className="block font-mono text-sm mb-2 uppercase tracking-wider text-muted-foreground">
+                <label className="block font-mono text-sm mb-2 uppercase tracking-wider text-white/60">
                     Icon
                 </label>
                 <select
@@ -284,7 +289,7 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
     function addProject(p: Project) {
         const updated = [...extraProjects, p];
         setExtraProjects(updated);
-        localStorage.setItem("admin_projects", JSON.stringify(updated));
+        localStorage.setItem("portfolio_projects", JSON.stringify(updated));
     }
 
     function deleteProject(index: number) {
@@ -294,13 +299,30 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
         const extraIndex = index - defaultCount;
         const updated = extraProjects.filter((_, i) => i !== extraIndex);
         setExtraProjects(updated);
-        localStorage.setItem("admin_projects", JSON.stringify(updated));
+        localStorage.setItem("portfolio_projects", JSON.stringify(updated));
+    }
+
+    function moveProject(index: number, direction: "up" | "down") {
+        const defaultCount = defaultProjects.length;
+        if (index < defaultCount) return;
+        const extraIndex = index - defaultCount;
+        if (direction === "up" && extraIndex > 0) {
+            const updated = [...extraProjects];
+            [updated[extraIndex], updated[extraIndex - 1]] = [updated[extraIndex - 1], updated[extraIndex]];
+            setExtraProjects(updated);
+            localStorage.setItem("portfolio_projects", JSON.stringify(updated));
+        } else if (direction === "down" && extraIndex < extraProjects.length - 1) {
+            const updated = [...extraProjects];
+            [updated[extraIndex], updated[extraIndex + 1]] = [updated[extraIndex + 1], updated[extraIndex]];
+            setExtraProjects(updated);
+            localStorage.setItem("portfolio_projects", JSON.stringify(updated));
+        }
     }
 
     function addSkill(s: StoredSkill) {
         const updated = [...extraSkills, s];
         setExtraSkills(updated);
-        localStorage.setItem("admin_skills", JSON.stringify(updated));
+        localStorage.setItem("portfolio_skills", JSON.stringify(updated));
     }
 
     function deleteSkill(index: number) {
@@ -309,7 +331,24 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
         const extraIndex = index - defaultCount;
         const updated = extraSkills.filter((_, i) => i !== extraIndex);
         setExtraSkills(updated);
-        localStorage.setItem("admin_skills", JSON.stringify(updated));
+        localStorage.setItem("portfolio_skills", JSON.stringify(updated));
+    }
+
+    function moveSkill(index: number, direction: "up" | "down") {
+        const defaultCount = defaultSkills.length;
+        if (index < defaultCount) return;
+        const extraIndex = index - defaultCount;
+        if (direction === "up" && extraIndex > 0) {
+            const updated = [...extraSkills];
+            [updated[extraIndex], updated[extraIndex - 1]] = [updated[extraIndex - 1], updated[extraIndex]];
+            setExtraSkills(updated);
+            localStorage.setItem("portfolio_skills", JSON.stringify(updated));
+        } else if (direction === "down" && extraIndex < extraSkills.length - 1) {
+            const updated = [...extraSkills];
+            [updated[extraIndex], updated[extraIndex + 1]] = [updated[extraIndex + 1], updated[extraIndex]];
+            setExtraSkills(updated);
+            localStorage.setItem("portfolio_skills", JSON.stringify(updated));
+        }
     }
 
     const NAV_SECTIONS = [
@@ -453,13 +492,31 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                                                     </a>
                                                 )}
                                                 {!isDefault && (
-                                                    <button
-                                                        onClick={() => deleteProject(i)}
-                                                        className="w-9 h-9 border-2 border-red-500 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors"
-                                                        title="Delete"
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </button>
+                                                    <>
+                                                        <button
+                                                            onClick={() => moveProject(i, "up")}
+                                                            disabled={i <= defaultProjects.length}
+                                                            className="w-9 h-9 border-2 border-white/50 text-white/50 flex items-center justify-center hover:border-white hover:text-white hover:bg-white/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                                            title="Move Up"
+                                                        >
+                                                            <ArrowUp className="w-4 h-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => moveProject(i, "down")}
+                                                            disabled={i >= allProjects.length - 1}
+                                                            className="w-9 h-9 border-2 border-white/50 text-white/50 flex items-center justify-center hover:border-white hover:text-white hover:bg-white/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                                            title="Move Down"
+                                                        >
+                                                            <ArrowDown className="w-4 h-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => deleteProject(i)}
+                                                            className="w-9 h-9 border-2 border-red-500 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors"
+                                                            title="Delete"
+                                                        >
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    </>
                                                 )}
                                             </div>
                                         </motion.div>
@@ -520,13 +577,31 @@ function Dashboard({ onLogout }: { onLogout: () => void }) {
                                                     <ExternalLink className="w-3.5 h-3.5" />
                                                 </a>
                                                 {!isDefault && (
-                                                    <button
-                                                        onClick={() => deleteSkill(i)}
-                                                        className="w-8 h-8 border-2 border-red-500 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors"
-                                                        title="Delete"
-                                                    >
-                                                        <Trash2 className="w-3.5 h-3.5" />
-                                                    </button>
+                                                    <> 
+                                                        <button
+                                                            onClick={() => moveSkill(i, "up")}
+                                                            disabled={i <= defaultSkills.length}
+                                                            className="w-8 h-8 border-2 border-white/50 text-white/50 flex items-center justify-center hover:border-white hover:text-white hover:bg-white/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                                            title="Move Up"
+                                                        >
+                                                            <ArrowUp className="w-3.5 h-3.5" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => moveSkill(i, "down")}
+                                                            disabled={i >= allSkills.length - 1}
+                                                            className="w-8 h-8 border-2 border-white/50 text-white/50 flex items-center justify-center hover:border-white hover:text-white hover:bg-white/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                                                            title="Move Down"
+                                                        >
+                                                            <ArrowDown className="w-3.5 h-3.5" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => deleteSkill(i)}
+                                                            className="w-8 h-8 border-2 border-red-500 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors"
+                                                            title="Delete"
+                                                        >
+                                                            <Trash2 className="w-3.5 h-3.5" />
+                                                        </button>
+                                                    </>
                                                 )}
                                             </div>
                                         </motion.div>

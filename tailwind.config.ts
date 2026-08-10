@@ -1,5 +1,8 @@
 import type { Config } from "tailwindcss";
 
+const withAlpha = (variable: string) =>
+    `oklch(from var(${variable}) l c h / <alpha-value>)`;
+
 export default {
     darkMode: ["class"],
     content: [
@@ -10,50 +13,50 @@ export default {
     theme: {
         extend: {
             colors: {
-                background: "hsl(var(--background))",
-                foreground: "hsl(var(--foreground))",
+                background: withAlpha("--background"),
+                foreground: withAlpha("--foreground"),
                 card: {
-                    DEFAULT: "hsl(var(--card))",
-                    foreground: "hsl(var(--card-foreground))",
+                    DEFAULT: withAlpha("--card"),
+                    foreground: withAlpha("--card-foreground"),
                 },
                 popover: {
-                    DEFAULT: "hsl(var(--popover))",
-                    foreground: "hsl(var(--popover-foreground))",
+                    DEFAULT: withAlpha("--popover"),
+                    foreground: withAlpha("--popover-foreground"),
                 },
                 primary: {
-                    DEFAULT: "hsl(var(--primary))",
-                    foreground: "hsl(var(--primary-foreground))",
+                    DEFAULT: withAlpha("--primary"),
+                    foreground: withAlpha("--primary-foreground"),
                 },
                 secondary: {
-                    DEFAULT: "hsl(var(--secondary))",
-                    foreground: "hsl(var(--secondary-foreground))",
+                    DEFAULT: withAlpha("--secondary"),
+                    foreground: withAlpha("--secondary-foreground"),
                 },
                 muted: {
-                    DEFAULT: "hsl(var(--muted))",
-                    foreground: "hsl(var(--muted-foreground))",
+                    DEFAULT: withAlpha("--muted"),
+                    foreground: withAlpha("--muted-foreground"),
                 },
                 accent: {
-                    DEFAULT: "hsl(var(--accent))",
-                    foreground: "hsl(var(--accent-foreground))",
+                    DEFAULT: withAlpha("--accent"),
+                    foreground: withAlpha("--accent-foreground"),
                 },
                 destructive: {
-                    DEFAULT: "hsl(var(--destructive))",
-                    foreground: "hsl(var(--destructive-foreground))",
+                    DEFAULT: withAlpha("--destructive"),
+                    foreground: withAlpha("--destructive-foreground"),
                 },
-                border: "hsl(var(--border))",
-                input: "hsl(var(--input))",
-                ring: "hsl(var(--ring))",
+                border: withAlpha("--border"),
+                input: withAlpha("--input"),
+                ring: withAlpha("--ring"),
                 chart: {
-                    "1": "hsl(var(--chart-1))",
-                    "2": "hsl(var(--chart-2))",
-                    "3": "hsl(var(--chart-3))",
-                    "4": "hsl(var(--chart-4))",
-                    "5": "hsl(var(--chart-5))",
+                    "1": withAlpha("--chart-1"),
+                    "2": withAlpha("--chart-2"),
+                    "3": withAlpha("--chart-3"),
+                    "4": withAlpha("--chart-4"),
+                    "5": withAlpha("--chart-5"),
                 },
-                boxShadow: {
-                    hard: "6px 6px 0px 0px rgba(0,0,0,1)",
-                    "hard-white": "6px 6px 0px 0px rgba(255,255,255,1)",
-                },
+            },
+            boxShadow: {
+                hard: "6px 6px 0px 0px rgba(0,0,0,1)",
+                "hard-white": "6px 6px 0px 0px rgba(255,255,255,1)",
             },
             borderRadius: {
                 lg: "var(--radius)",
@@ -61,9 +64,9 @@ export default {
                 sm: "calc(var(--radius) - 4px)",
             },
             fontFamily: {
-                sans: ["var(--font-space-mono)"],
+                sans: ["var(--font-sans)"],
                 display: ["var(--font-vt323)"],
-                mono: ["var(--font-vt323)"],
+                mono: ["var(--font-mono)"],
             },
             animation: {
                 "fade-in": "fadeIn 0.6s ease-out",
