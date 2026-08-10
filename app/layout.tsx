@@ -13,6 +13,11 @@ export const metadata: Metadata = {
     title: "Swadhin Raha — Software Engineer",
     description: "Portfolio of Swadhin Raha, a software engineer building fast, thoughtful products with React, Next.js, TypeScript, and Rust.",
     keywords: ["Swadhin Raha", "software engineer", "portfolio", "Next.js", "React", "TypeScript", "Rust"],
+    icons: {
+        icon: "/profile.jpeg",
+        shortcut: "/profile.jpeg",
+        apple: "/profile.jpeg",
+    },
 };
 
 export default function RootLayout({
