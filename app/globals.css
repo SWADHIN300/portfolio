@@ -2,77 +2,345 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ────────────────────────────────────────────
-   CSS VARIABLES
-──────────────────────────────────────────── */
 :root {
-  /* Dark mode (default) */
-  --bg: #0b0b0b;
-  --bg-glass: rgba(25, 25, 25, 0.72);
-  --bg-glass-hover: rgba(35, 35, 35, 0.85);
-  --fg: #f0f0f0;
-  --fg-muted: rgba(240, 240, 240, 0.45);
-  --fg-subtle: rgba(240, 240, 240, 0.15);
-  --border: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.18);
-  --accent-green: #28c840;
-  --dock-bg: rgba(40, 40, 40, 0.75);
-  --scrollbar: rgba(255, 255, 255, 0.15);
+  color-scheme: light;
+
+  /* Warm dim theme - easy on eyes, more muted/dim in light mode */
+  --background: oklch(0.93 0.015 55);     /* Dimmed warm background */
+  --foreground: oklch(0.28 0.015 45);     /* Warm dark text */
+  --card: oklch(0.91 0.012 55);           /* Dimmed warm card */
+  --card-foreground: oklch(0.28 0.015 45);
+  --popover: oklch(0.89 0.012 55);
+  --popover-foreground: oklch(0.28 0.015 45);
+  --primary: oklch(0.52 0.1 40);          /* Muted warm primary */
+  --primary-foreground: oklch(0.97 0.01 80);
+  --secondary: oklch(0.86 0.015 55);
+  --secondary-foreground: oklch(0.32 0.015 45);
+  --muted: oklch(0.83 0.015 55);
+  --muted-foreground: oklch(0.48 0.015 45);
+  --accent: oklch(0.58 0.12 50);          /* Muted warm accent */
+  --accent-foreground: oklch(0.97 0.01 80);
+  --destructive: oklch(0.52 0.18 25);
+  --destructive-foreground: oklch(0.97 0.01 80);
+  --border: oklch(0.78 0.015 55);
+  --input: oklch(0.85 0.015 55);
+  --ring: oklch(0.52 0.1 40);
+  --chart-1: oklch(0.52 0.1 40);
+  --chart-2: oklch(0.52 0.1 80);
+  --chart-3: oklch(0.52 0.1 120);
+  --chart-4: oklch(0.52 0.1 160);
+  --chart-5: oklch(0.52 0.1 200);
+  --sidebar: oklch(0.88 0.015 55);
+  --sidebar-foreground: oklch(0.28 0.015 45);
+  --sidebar-primary: oklch(0.42 0.09 40);
+  --sidebar-primary-foreground: oklch(0.97 0.01 80);
+  --sidebar-accent: oklch(0.58 0.12 50);
+  --sidebar-accent-foreground: oklch(0.97 0.01 80);
+  --sidebar-border: oklch(0.78 0.015 55);
+  --sidebar-ring: oklch(0.52 0.1 40);
+  --site-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --site-mono: var(--font-space-mono), "SFMono-Regular", Consolas, monospace;
+  --font-sans: var(--site-sans);
+  --font-serif: var(--site-sans);
+  --font-mono: var(--site-mono);
+  --radius: 0rem;
+  --shadow-x: 0px;
+  --shadow-y: 1px;
+  --shadow-blur: 0px;
+  --shadow-spread: 0px;
+  --shadow-opacity: 0;
+  --shadow-color: hsl(0 0% 0%);
+  --shadow-2xs: 0px 1px 0px 0px hsl(0 0% 0% / 0);
+  --shadow-xs: 0px 1px 0px 0px hsl(0 0% 0% / 0);
+  --shadow-sm: 0px 1px 0px 0px hsl(0 0% 0% / 0), 0px 1px 2px -1px hsl(0 0% 0% / 0);
+  --shadow: 0px 1px 0px 0px hsl(0 0% 0% / 0), 0px 1px 2px -1px hsl(0 0% 0% / 0);
+  --shadow-md: 0px 1px 0px 0px hsl(0 0% 0% / 0), 0px 2px 4px -1px hsl(0 0% 0% / 0);
+  --shadow-lg: 0px 1px 0px 0px hsl(0 0% 0% / 0), 0px 4px 6px -1px hsl(0 0% 0% / 0);
+  --shadow-xl: 0px 1px 0px 0px hsl(0 0% 0% / 0), 0px 8px 10px -1px hsl(0 0% 0% / 0);
+  --shadow-2xl: 0px 1px 0px 0px hsl(0 0% 0% / 0);
+  --tracking-normal: 0em;
+  --spacing: 0.25rem;
+
+  /* Custom theme variables - Light/Dim Warm */
+  --bg: var(--background);
+  --bg-glass: color-mix(in oklab, var(--card) 88%, transparent);
+  --bg-glass-hover: color-mix(in oklab, var(--card) 94%, var(--foreground) 6%);
+  --fg: var(--foreground);
+  --fg-muted: color-mix(in oklab, var(--foreground) 52%, transparent);
+  --fg-subtle: color-mix(in oklab, var(--foreground) 18%, transparent);
+  --border-strong: color-mix(in oklab, var(--border) 72%, var(--foreground) 12%);
+  --border-hover: color-mix(in oklab, var(--ring) 48%, var(--foreground) 18%);
+  --accent-bg: color-mix(in oklab, var(--accent) 88%, transparent);
+  --dock-bg: color-mix(in oklab, var(--sidebar) 88%, transparent);
+  --scrollbar: color-mix(in oklab, var(--foreground) 18%, transparent);
+  --music-primary: #ff6b35;
+  --music-secondary: #e8b57d;
+
+  /* Enhanced visual effects */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+
+  --widget-bg: color-mix(in oklab, var(--card) 86%, transparent);
+  --widget-border: color-mix(in oklab, var(--border) 82%, transparent);
+  --widget-bright: color-mix(in oklab, var(--foreground) 88%, transparent);
+  --widget-strong: color-mix(in oklab, var(--foreground) 78%, transparent);
+  --widget-muted: color-mix(in oklab, var(--foreground) 58%, transparent);
+  --widget-subtle: color-mix(in oklab, var(--foreground) 52%, transparent);
+  --widget-faint: color-mix(in oklab, var(--foreground) 30%, transparent);
+  --widget-surface: color-mix(in oklab, var(--foreground) 7%, transparent);
+  --widget-surface-strong: color-mix(in oklab, var(--foreground) 12%, transparent);
+
+  /* Tooltip styles */
+  --tooltip-bg: color-mix(in oklab, var(--card) 90%, transparent);
+  --tooltip-border: color-mix(in oklab, var(--border) 78%, transparent);
+
+  /* Preview card */
+  --preview-card-bg: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--card) 95%, var(--background) 5%),
+    color-mix(in oklab, var(--popover) 90%, var(--background) 10%)
+  );
+  --preview-card-glow: radial-gradient(
+    circle at top,
+    color-mix(in oklab, var(--foreground) 3%, transparent),
+    transparent 42%
+  );
+  --preview-card-sheen: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--foreground) 1.5%, transparent),
+    transparent 42%
+  );
+  --preview-card-border: color-mix(in oklab, var(--border) 70%, var(--foreground) 8%);
+  --preview-card-shadow: 0 26px 70px rgba(0, 0, 0, 0.1), inset 0 1px 0 color-mix(in oklab, var(--foreground) 3%, transparent);
+
+  /* Dock icons */
+  --dock-icon-bg: linear-gradient(
+    145deg,
+    color-mix(in oklab, var(--foreground) 10%, transparent),
+    color-mix(in oklab, var(--foreground) 1.5%, transparent)
+  );
+  --dock-icon-bg-active: linear-gradient(
+    145deg,
+    color-mix(in oklab, var(--foreground) 18%, transparent),
+    color-mix(in oklab, var(--foreground) 5%, transparent)
+  );
+  --dock-icon-border: color-mix(in oklab, var(--border) 72%, var(--foreground) 8%);
+  --dock-icon-border-active: color-mix(in oklab, var(--foreground) 32%, transparent);
+  --dock-icon-color: color-mix(in oklab, var(--foreground) 82%, transparent);
+  --dock-icon-shadow: 0 8px 18px rgba(0, 0, 0, 0.1), inset 0 1px 0 color-mix(in oklab, var(--foreground) 8%, transparent);
+  --dock-icon-shadow-hover: 0 14px 28px rgba(0, 0, 0, 0.12), 0 0 14px color-mix(in oklab, var(--foreground) 6%, transparent);
+  --dock-icon-shadow-active: 0 13px 30px rgba(0, 0, 0, 0.15), 0 0 18px color-mix(in oklab, var(--status-green) 20%, transparent);
+  --dock-dot: color-mix(in oklab, var(--foreground) 80%, transparent);
+
+  --status-green: oklch(0.62 0.14 145);
+  --status-green-soft: color-mix(in oklab, var(--status-green) 16%, transparent);
+  --danger-border: color-mix(in oklab, var(--destructive) 38%, transparent);
+  --danger-bg: color-mix(in oklab, var(--destructive) 7%, transparent);
+  --hero-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+
+  --terminal-bg: color-mix(in oklab, var(--background) 18%, var(--card) 82%);
+  --terminal-text: var(--widget-strong);
+  --prompt: var(--status-green);
+
+  /* Music theme variables - will be updated dynamically */
+  --theme-accent: var(--accent);
+  --theme-accent-fg: var(--accent-foreground);
+  --theme-primary: var(--primary);
+  --theme-ring: var(--ring);
+  --theme-card-glow: color-mix(in oklab, var(--foreground) 3%, transparent);
 }
 
-html.light {
-  --bg: #e8e8e8;
-  --bg-glass: rgba(255, 255, 255, 0.72);
-  --bg-glass-hover: rgba(255, 255, 255, 0.9);
-  --fg: #0a0a0a;
-  --fg-muted: rgba(10, 10, 10, 0.50);
-  --fg-subtle: rgba(10, 10, 10, 0.18);
-  --border: rgba(0, 0, 0, 0.10);
-  --border-strong: rgba(0, 0, 0, 0.22);
-  --dock-bg: rgba(210, 210, 210, 0.75);
-  --scrollbar: rgba(0, 0, 0, 0.15);
+.dark {
+  color-scheme: dark;
+
+  /* Dark warm theme */
+  --background: oklch(0.10 0.008 45);
+  --foreground: oklch(0.91 0.01 85);
+  --card: oklch(0.14 0.008 45);
+  --card-foreground: oklch(0.91 0.01 85);
+  --popover: oklch(0.18 0.008 45);
+  --popover-foreground: oklch(0.91 0.01 85);
+  --primary: oklch(0.58 0.11 50);
+  --primary-foreground: oklch(0.10 0.01 45);
+  --secondary: oklch(0.22 0.008 45);
+  --secondary-foreground: oklch(0.91 0.01 85);
+  --muted: oklch(0.26 0.008 45);
+  --muted-foreground: oklch(0.63 0.01 85);
+  --accent: oklch(0.48 0.13 50);
+  --accent-foreground: oklch(0.97 0.01 80);
+  --destructive: oklch(0.48 0.2 25);
+  --destructive-foreground: oklch(0.97 0.01 80);
+  --border: oklch(0.24 0.008 45);
+  --input: oklch(0.30 0.008 45);
+  --ring: oklch(0.48 0.11 50);
+  --chart-1: oklch(0.58 0.11 50);
+  --chart-2: oklch(0.58 0.11 90);
+  --chart-3: oklch(0.58 0.11 130);
+  --chart-4: oklch(0.58 0.11 170);
+  --chart-5: oklch(0.58 0.11 210);
+  --sidebar: oklch(0.12 0.008 45);
+  --sidebar-foreground: oklch(0.91 0.01 85);
+  --sidebar-primary: oklch(0.82 0.09 75);
+  --sidebar-primary-foreground: oklch(0.10 0.01 45);
+  --sidebar-accent: oklch(0.48 0.13 50);
+  --sidebar-accent-foreground: oklch(0.97 0.01 80);
+  --sidebar-border: oklch(0.24 0.008 45);
+  --sidebar-ring: oklch(0.48 0.11 50);
+
+  /* Tooltip styles for dark mode */
+  --tooltip-bg: color-mix(in oklab, var(--card) 88%, transparent);
+  --tooltip-border: color-mix(in oklab, var(--border) 68%, transparent);
+
+  /* Dark mode overrides for custom variables */
+  --bg-glass: color-mix(in oklab, var(--card) 88%, transparent);
+  --bg-glass-hover: color-mix(in oklab, var(--card) 94%, var(--foreground) 6%);
+  --fg-muted: color-mix(in oklab, var(--foreground) 52%, transparent);
+  --fg-subtle: color-mix(in oklab, var(--foreground) 18%, transparent);
+  --border-strong: color-mix(in oklab, var(--border) 72%, var(--foreground) 12%);
+  --border-hover: color-mix(in oklab, var(--ring) 48%, var(--foreground) 18%);
+  --accent-bg: color-mix(in oklab, var(--accent) 88%, transparent);
+  --dock-bg: color-mix(in oklab, var(--sidebar) 88%, transparent);
+  --scrollbar: color-mix(in oklab, var(--foreground) 18%, transparent);
+
+  --widget-bg: color-mix(in oklab, var(--card) 86%, transparent);
+  --widget-border: color-mix(in oklab, var(--border) 82%, transparent);
+  --widget-bright: color-mix(in oklab, var(--foreground) 88%, transparent);
+  --widget-strong: color-mix(in oklab, var(--foreground) 78%, transparent);
+  --widget-muted: color-mix(in oklab, var(--foreground) 58%, transparent);
+  --widget-subtle: color-mix(in oklab, var(--foreground) 52%, transparent);
+  --widget-faint: color-mix(in oklab, var(--foreground) 30%, transparent);
+  --widget-surface: color-mix(in oklab, var(--foreground) 7%, transparent);
+  --widget-surface-strong: color-mix(in oklab, var(--foreground) 12%, transparent);
+
+  --preview-card-bg: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--card) 95%, var(--background) 5%),
+    color-mix(in oklab, var(--popover) 90%, var(--background) 10%)
+  );
+  --preview-card-glow: radial-gradient(
+    circle at top,
+    color-mix(in oklab, var(--foreground) 4%, transparent),
+    transparent 42%
+  );
+  --preview-card-sheen: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--foreground) 2%, transparent),
+    transparent 42%
+  );
+  --preview-card-border: color-mix(in oklab, var(--border) 70%, var(--foreground) 8%);
+  --preview-card-shadow: 0 26px 70px rgba(0, 0, 0, 0.32), inset 0 1px 0 color-mix(in oklab, var(--foreground) 3%, transparent);
+
+  --dock-icon-bg: linear-gradient(
+    145deg,
+    color-mix(in oklab, var(--foreground) 12%, transparent),
+    color-mix(in oklab, var(--foreground) 2%, transparent)
+  );
+  --dock-icon-bg-active: linear-gradient(
+    145deg,
+    color-mix(in oklab, var(--foreground) 20%, transparent),
+    color-mix(in oklab, var(--foreground) 6%, transparent)
+  );
+  --dock-icon-border: color-mix(in oklab, var(--border) 72%, var(--foreground) 8%);
+  --dock-icon-border-active: color-mix(in oklab, var(--foreground) 32%, transparent);
+  --dock-icon-color: color-mix(in oklab, var(--foreground) 85%, transparent);
+  --dock-icon-shadow: 0 8px 18px rgba(0, 0, 0, 0.22), inset 0 1px 0 color-mix(in oklab, var(--foreground) 10%, transparent);
+  --dock-icon-shadow-hover: 0 14px 28px rgba(0, 0, 0, 0.26), 0 0 14px color-mix(in oklab, var(--foreground) 8%, transparent);
+  --dock-icon-shadow-active: 0 13px 30px rgba(0, 0, 0, 0.3), 0 0 18px color-mix(in oklab, var(--status-green) 22%, transparent);
+  --dock-dot: color-mix(in oklab, var(--foreground) 83%, transparent);
+
+  --status-green: oklch(0.68 0.14 145);
+  --status-green-soft: color-mix(in oklab, var(--status-green) 18%, transparent);
+  --danger-border: color-mix(in oklab, var(--destructive) 40%, transparent);
+  --danger-bg: color-mix(in oklab, var(--destructive) 9%, transparent);
+  --hero-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+
+  --terminal-bg: color-mix(in oklab, var(--background) 18%, var(--card) 82%);
+  --terminal-text: var(--widget-strong);
+  --prompt: var(--status-green);
+
+  --theme-accent: var(--accent);
+  --theme-accent-fg: var(--accent-foreground);
+  --theme-primary: var(--primary);
+  --theme-ring: var(--ring);
+  --theme-card-glow: color-mix(in oklab, var(--foreground) 4%, transparent);
 }
 
-html { scroll-behavior: smooth; }
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    border-color: var(--border);
+    outline-color: color-mix(in oklab, var(--ring) 50%, transparent);
+  }
 
-*, *::before, *::after { box-sizing: border-box; }
+  html {
+    scroll-behavior: smooth;
+    transition: background 0.5s ease, color 0.5s ease;
+  }
 
-body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--fg);
-  font-family: var(--font-space-mono), ui-monospace, monospace;
-  overflow-x: hidden;
-  transition: background 0.3s, color 0.3s;
+  body {
+    margin: 0;
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--site-sans);
+    overflow-x: hidden;
+    transition: background 0.5s ease, color 0.5s ease;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
 }
 
-/* Subtle dot grid on the desktop */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar);
+  border-radius: 4px;
+}
+
 .desktop {
   min-height: 100dvh;
   position: relative;
   background-image: radial-gradient(var(--fg-subtle) 1px, transparent 1px);
-  background-size: 36px 36px;
+  background-size: 40px 40px;
   background-attachment: fixed;
+  transition: background 0.5s ease;
 }
 
-/* ── Scrollbar ─────────────────────── */
-::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--scrollbar); border-radius: 4px; }
-
-/* ── Glassmorphism window ──────────── */
 .glass-window {
-  background: #101010;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
+  background: color-mix(in oklab, var(--card) 93%, transparent);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border-strong);
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 24px 60px rgba(0,0,0,0.85), 0 0 0 0.5px var(--border);
+  box-shadow: 
+    0 24px 60px rgba(0, 0, 0, 0.12), 
+    0 0 0 0.5px var(--border),
+    0 4px 12px rgba(0, 0, 0, 0.06);
+  transition: box-shadow var(--transition-normal), transform var(--transition-fast), border-color 0.5s ease;
 }
 
-html.light .glass-window {
-  background: #f8f8f8;
+.glass-window:hover {
+  box-shadow: 
+    0 32px 80px rgba(0, 0, 0, 0.15), 
+    0 0 0 0.5px var(--border-strong),
+    0 8px 24px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
 }
 
 .glass-window-titlebar {
@@ -81,59 +349,79 @@ html.light .glass-window {
   gap: 8px;
   padding: 10px 14px;
   border-bottom: 1px solid var(--border);
-  background: #161616;
+  background: color-mix(in oklab, var(--card) 72%, var(--background) 28%);
   flex-shrink: 0;
 }
 
-html.light .glass-window-titlebar {
-  background: #efefef;
-}
-
-/* Traffic light buttons */
 .traffic-dot {
   width: 12px;
   height: 12px;
   border-radius: 50%;
   flex-shrink: 0;
-  transition: filter 0.15s;
+  transition: filter 0.15s ease;
 }
-.traffic-dot:hover { filter: brightness(1.3); }
-.traffic-close  { background: #ff5f57; }
-.traffic-min    { background: #febc2e; }
-.traffic-max    { background: #28c840; }
 
-/* ── Dock ──────────────────────────── */
+.traffic-dot:hover {
+  filter: brightness(1.08);
+}
+
+.traffic-close {
+  background: #ff5f57;
+}
+
+.traffic-min {
+  background: #febc2e;
+}
+
+.traffic-max {
+  background: var(--status-green);
+}
+
 .dock {
   position: fixed;
-  bottom: 16px;
+  bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 100;
   display: flex;
   align-items: flex-end;
-  gap: 8px;
-  padding: 10px 14px;
-  background: linear-gradient(135deg, rgba(36,36,36,0.82), rgba(20,20,20,0.72));
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255,255,255,0.16);
-  border-radius: 22px;
-  box-shadow: 0 18px 42px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.08);
-  transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+  gap: 6px;
+  padding: 12px 18px;
+  background: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--sidebar) 92%, transparent),
+    color-mix(in oklab, var(--background) 88%, transparent)
+  );
+  backdrop-filter: blur(30px) saturate(200%);
+  -webkit-backdrop-filter: blur(30px) saturate(200%);
+  border: 1px solid var(--border-strong);
+  border-radius: 28px;
+  box-shadow: 
+    0 24px 60px rgba(0, 0, 0, 0.18), 
+    inset 0 1px 0 color-mix(in oklab, var(--foreground) 8%, transparent),
+    0 0 0 1px color-mix(in oklab, var(--foreground) 1.5%, transparent);
+  transition: all var(--transition-normal), border-color 0.5s ease, background 0.5s ease;
   overflow: hidden;
 }
 
-html.light .dock {
-  background: linear-gradient(135deg, rgba(255,255,255,0.88), rgba(232,232,232,0.78));
-  border: 1px solid rgba(0,0,0,0.14);
-  box-shadow: 0 18px 36px rgba(0,0,0,0.16), inset 0 1px 0 rgba(255,255,255,0.5);
+.dock:hover {
+  box-shadow: 
+    0 32px 80px rgba(0, 0, 0, 0.22), 
+    inset 0 1px 0 color-mix(in oklab, var(--foreground) 10%, transparent),
+    0 0 0 1px color-mix(in oklab, var(--foreground) 3%, transparent);
+  border-color: var(--fg);
 }
 
 .dock::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.06) 45%, transparent 75%);
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    color-mix(in oklab, var(--foreground) 4%, transparent) 45%,
+    transparent 75%
+  );
   transform: translateX(-140%);
   animation: dock-glint 8s linear infinite;
   pointer-events: none;
@@ -145,216 +433,264 @@ html.light .dock {
   100% { transform: translateX(140%); }
 }
 
-.dock-item {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  cursor: pointer;
-  transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
-}
-.dock-item:hover { transform: translateY(-10px) scale(1.25); }
-
-.dock-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-glass);
-  border: 1px solid var(--border-strong);
-  color: var(--fg);
-  transition: background 0.2s;
-  font-size: 1.4rem;
-}
-.dock-icon.active-icon {
-  border-color: rgba(255,255,255,0.35);
-}
-
-/* Active dot below icon */
-.dock-dot {
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: var(--fg);
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-.dock-item.active .dock-dot { opacity: 0.7; }
-
-/* Separator in dock */
 .dock-sep {
   width: 1px;
   height: 36px;
-  background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.22), transparent);
+  background: linear-gradient(to bottom, transparent, var(--border-strong), transparent);
   margin: 0 6px;
   align-self: center;
 }
 
-/* ── Status bar ───────────────────── */
 .status-bar {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
-  height: 28px;
+  height: 32px;
   z-index: 200;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 16px;
+  padding: 0 20px;
   background: var(--dock-bg);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(30px) saturate(200%);
+  -webkit-backdrop-filter: blur(30px) saturate(200%);
   border-bottom: 1px solid var(--border);
-  font-size: 0.65rem;
-  letter-spacing: 0.08em;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
   color: var(--fg-muted);
-  transition: background 0.3s;
+  transition: all var(--transition-normal), background 0.5s ease, border-color 0.5s ease;
 }
 
-/* ── Typography ───────────────────── */
-.mono { font-family: var(--font-space-mono), monospace; }
+.status-bar:hover {
+  border-bottom-color: var(--border-strong);
+}
+
+.font-sans,
+.mono {
+  font-family: var(--site-sans);
+}
+
+.label,
+.btn-solid,
+.btn-ghost,
+.theme-toggle,
+.badge,
+.field,
+.skill-pill {
+  font-family: var(--site-mono);
+} 
 
 .heading-xl {
-  font-family: var(--font-space-mono), monospace;
+  font-family: var(--site-sans);
   font-size: clamp(2.5rem, 8vw, 5.5rem);
-  font-weight: 700;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: -0.02em;
-  line-height: 1;
+  letter-spacing: -0.065em;
+  line-height: 0.92;
   color: var(--fg);
 }
 
 .label {
-  font-family: var(--font-space-mono), monospace;
+  font-family: var(--font-sans);
   font-size: 0.62rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--fg-muted);
 }
 
-/* Small card (inside windows) */
 .mini-card {
-  background: rgba(255,255,255,0.04);
+  background: color-mix(in oklab, var(--card) 83%, transparent);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 14px 16px;
-  transition: border-color 0.2s;
+  transition: all var(--transition-normal), border-color 0.5s ease, background 0.5s ease;
+  position: relative;
+  overflow: hidden;
 }
-html.light .mini-card { background: rgba(0,0,0,0.03); }
-.mini-card:hover { border-color: var(--border-strong); }
 
-/* ── Buttons ──────────────────────── */
-.btn-solid {
+.mini-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--fg) 2.5%, transparent), transparent);
+  transition: left var(--transition-slow);
+}
+
+.mini-card:hover {
+  border-color: var(--border-strong);
+  background: color-mix(in oklab, var(--card) 93%, transparent);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+}
+
+.mini-card:hover::before {
+  left: 100%;
+}
+
+.btn-solid,
+.btn-ghost,
+.theme-toggle {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: var(--fg);
-  color: var(--bg);
-  padding: 8px 20px;
-  font-family: var(--font-space-mono), monospace;
+  font-family: var(--font-sans);
   font-size: 0.72rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-solid {
+  background: var(--fg);
+  color: var(--bg);
+  padding: 8px 20px;
   font-weight: 700;
   border: 1px solid var(--fg);
   border-radius: 4px;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s, transform 0.15s;
+  position: relative;
+  overflow: hidden;
 }
+
+.btn-solid::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 0%, color-mix(in oklab, var(--fg) 18%, transparent) 50%, transparent 100%);
+  transform: translateX(-100%);
+  transition: transform var(--transition-normal);
+}
+
 .btn-solid:hover {
   background: transparent;
   color: var(--fg);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
+
+.btn-solid:hover::before {
+  transform: translateX(100%);
+}
+
+.btn-solid:active {
+  transform: translateY(0);
+}
+
 .btn-solid:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
 }
 
-.btn-ghost {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+.btn-ghost,
+.theme-toggle {
   background: transparent;
   color: var(--fg-muted);
   padding: 8px 18px;
-  font-family: var(--font-space-mono), monospace;
-  font-size: 0.72rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
   border: 1px solid var(--border);
   border-radius: 4px;
-  cursor: pointer;
-  transition: border-color 0.2s, color 0.2s, transform 0.15s;
 }
-.btn-ghost:hover {
+
+.btn-ghost:hover,
+.theme-toggle:hover {
   border-color: var(--border-strong);
   color: var(--fg);
   transform: translateY(-1px);
 }
 
-/* ── Tech badge ───────────────────── */
 .badge {
   display: inline-block;
   padding: 2px 8px;
-  font-family: var(--font-space-mono), monospace;
+  font-family: var(--font-sans);
   font-size: 0.6rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   border: 1px solid var(--border);
   color: var(--fg-muted);
   border-radius: 3px;
-  transition: border-color 0.2s, color 0.2s;
+  transition: all var(--transition-fast), border-color 0.5s ease, background 0.5s ease, color 0.5s ease;
+  cursor: default;
 }
-.badge:hover { border-color: var(--border-strong); color: var(--fg); }
 
-/* ── Form input ───────────────────── */
+.badge:hover {
+  border-color: var(--fg);
+  color: var(--fg);
+  background: color-mix(in oklab, var(--fg) 7%, transparent);
+  transform: translateY(-1px);
+}
+
 .field {
   width: 100%;
   padding: 9px 12px;
-  background: rgba(255,255,255,0.05);
+  background: color-mix(in oklab, var(--input) 72%, transparent);
   border: 1px solid var(--border);
   border-radius: 5px;
   color: var(--fg);
-  font-family: var(--font-space-mono), monospace;
+  font-family: var(--font-sans);
   font-size: 0.78rem;
   outline: none;
-  transition: border-color 0.2s;
+  transition: all var(--transition-fast), border-color 0.5s ease, background 0.5s ease, color 0.5s ease;
 }
-html.light .field { background: rgba(0,0,0,0.04); }
-.field::placeholder { color: var(--fg-subtle); }
-.field:focus { border-color: var(--border-strong); }
 
-/* ── Skill pill ───────────────────── */
+.field::placeholder {
+  color: var(--fg-subtle);
+  transition: color var(--transition-fast);
+}
+
+.field:focus {
+  border-color: var(--fg);
+  background: color-mix(in oklab, var(--input) 88%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--fg) 12%, transparent);
+}
+
+.field:hover:not(:focus) {
+  border-color: var(--border-strong);
+}
+
 .skill-pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 5px 12px;
-  background: rgba(255,255,255,0.04);
+  background: color-mix(in oklab, var(--card) 83%, transparent);
   border: 1px solid var(--border);
   border-radius: 4px;
-  font-family: var(--font-space-mono), monospace;
+  font-family: var(--font-sans);
   font-size: 0.65rem;
   letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--fg-muted);
-  transition: border-color 0.2s, color 0.2s, transform 0.2s;
+  transition: all var(--transition-fast), border-color 0.5s ease, background 0.5s ease, color 0.5s ease;
   cursor: default;
-}
-html.light .skill-pill { background: rgba(0,0,0,0.03); }
-.skill-pill:hover {
-  border-color: var(--border-strong);
-  color: var(--fg);
-  transform: translateY(-2px);
+  position: relative;
+  overflow: hidden;
 }
 
-/* ── Social icon ──────────────────── */
+.skill-pill::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--fg) 8%, transparent), transparent);
+  transform: translateX(-100%);
+  transition: transform var(--transition-normal);
+}
+
+.skill-pill:hover {
+  border-color: var(--fg);
+  color: var(--fg);
+  background: color-mix(in oklab, var(--card) 93%, transparent);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.skill-pill:hover::before {
+  transform: translateX(100%);
+}
+
 .social-icon {
   display: inline-flex;
   align-items: center;
@@ -364,19 +700,158 @@ html.light .skill-pill { background: rgba(0,0,0,0.03); }
   border: 1px solid var(--border);
   border-radius: 8px;
   color: var(--fg-muted);
-  transition: border-color 0.2s, color 0.2s, transform 0.2s;
-}
-.social-icon:hover {
-  border-color: var(--border-strong);
-  color: var(--fg);
-  transform: translateY(-2px);
+  transition: all var(--transition-fast), border-color 0.5s ease, background 0.5s ease, color 0.5s ease;
+  position: relative;
+  overflow: hidden;
 }
 
-/* Status indicator */
+.social-icon::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--fg);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.social-icon:hover {
+  border-color: var(--fg);
+  color: var(--bg);
+  background: var(--fg);
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+}
+
+.social-icon:hover::before {
+  opacity: 0.1;
+}
+
 .status-dot {
-  width: 6px; height: 6px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: var(--accent-green);
-  box-shadow: 0 0 5px var(--accent-green);
+  background: var(--status-green);
+  box-shadow: 0 0 6px var(--status-green-soft);
   display: inline-block;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.1); }
+}
+
+/* Tooltip styles */
+.btn-tooltip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  background: var(--tooltip-bg);
+  border: 1px solid var(--tooltip-border);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.5rem;
+  color: var(--fg);
+  font-family: var(--font-space-mono), monospace;
+  white-space: nowrap;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+/* Tooltip visibility on hover */
+.window-btn:hover .btn-tooltip {
+  opacity: 1;
+}
+
+/* Draggable widget styles */
+.draggable-widget {
+  cursor: grab;
+  user-select: none;
+}
+
+.draggable-widget:active {
+  cursor: grabbing;
+}
+
+.draggable-widget.dragging {
+  cursor: grabbing;
+  z-index: 9999 !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.18);
+}
+
+/* Music theme transition classes */
+.music-theme-transition {
+  transition: 
+    --accent 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+    --primary 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+    --ring 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+    --border 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+    --card 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+    --background 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+    --foreground 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Portfolio-specific composition */
+.portfolio-main { display: contents; }
+.status-brand, .status-meta, .status-center { display: flex; align-items: center; }
+.status-brand { gap: 14px; }
+.status-meta { gap: 14px; }
+.status-center { gap: 8px; }
+
+.hero-content { padding: 30px 32px 26px; }
+.hero-kicker { margin-bottom: 16px; }
+.hero-name { position: relative; z-index: 1; margin: 0 0 14px; color: var(--fg); font-family: var(--site-sans); font-size: clamp(3.4rem, 8vw, 5rem); font-weight: 800; line-height: 0.88; letter-spacing: -0.075em; }
+.hero-role { margin: 0; color: var(--fg-muted); font-family: var(--site-mono); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.13em; line-height: 1.55; text-transform: uppercase; }
+.hero-rule { height: 1px; margin: 20px 0; background: var(--border); }
+.hero-description { max-width: 500px; margin: 0 0 22px; color: var(--fg-muted); font-family: var(--site-sans); font-size: 0.86rem; font-weight: 500; line-height: 1.75; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-bottom: 24px; }
+.hero-profile { display: flex; align-items: center; gap: 11px; padding-top: 18px; border-top: 1px solid var(--border); }
+.hero-avatar { width: 42px; height: 42px; border: 1px solid var(--widget-border); border-radius: 10px; object-fit: cover; }
+.hero-handle { margin: 0 0 3px; color: var(--fg-muted); font-family: var(--site-mono); font-size: 0.62rem; font-weight: 700; letter-spacing: 0.12em; }
+.hero-location { margin: 0; color: var(--fg-subtle); font-family: var(--site-mono); font-size: 0.58rem; }
+.hero-socials { display: flex; gap: 14px; margin-left: auto; color: var(--fg-muted); }
+.hero-socials a { display: inline-flex; transition: color var(--transition-fast), transform var(--transition-fast); }
+.hero-socials a:hover { color: var(--fg); transform: translateY(-2px); }
+
+.project-preview { position: relative; overflow: hidden; min-height: 128px; margin-top: 12px; padding: 13px 14px; border: 1px solid var(--widget-border); border-radius: 8px; background: linear-gradient(145deg, color-mix(in oklab, var(--accent) 16%, var(--card)), var(--card)); }
+.project-preview-1 { background: linear-gradient(145deg, #0e1b25, #11151b); }
+.project-preview-2 { background: linear-gradient(145deg, #1b1722, #111116); }
+.project-preview-3 { background: linear-gradient(145deg, #1d1912, #12110f); }
+.project-preview-top { display: flex; justify-content: space-between; color: color-mix(in oklab, white 72%, transparent); font-family: var(--site-mono); font-size: 0.5rem; letter-spacing: 0.1em; }
+.project-preview-top span:last-child { color: var(--status-green); }
+.project-preview-body { display: grid; grid-template-columns: 48px 1fr 72px; gap: 12px; align-items: end; height: 84px; margin-top: 10px; }
+.project-preview-sidebar { display: grid; gap: 7px; align-content: center; }
+.project-preview-sidebar span { display: block; height: 5px; border-radius: 2px; background: color-mix(in oklab, white 28%, transparent); }
+.project-preview-sidebar span:first-child { width: 38px; background: color-mix(in oklab, var(--status-green) 76%, transparent); }
+.project-preview-chart { display: flex; align-items: end; gap: 5px; height: 100%; padding: 10px 0 5px; border-bottom: 1px solid color-mix(in oklab, white 16%, transparent); }
+.project-preview-chart i { display: block; flex: 1; min-width: 5px; height: 20%; border-radius: 2px 2px 0 0; background: color-mix(in oklab, var(--status-green) 72%, transparent); }
+.project-preview-chart i:nth-child(2) { height: 42%; }.project-preview-chart i:nth-child(3) { height: 32%; }.project-preview-chart i:nth-child(4) { height: 63%; }.project-preview-chart i:nth-child(5) { height: 48%; }.project-preview-chart i:nth-child(6) { height: 78%; }.project-preview-chart i:nth-child(7) { height: 58%; }.project-preview-chart i:nth-child(8) { height: 91%; }
+.project-preview-panel { display: grid; gap: 7px; padding: 10px; border: 1px solid color-mix(in oklab, white 14%, transparent); border-radius: 5px; }
+.project-preview-panel span { display: block; height: 5px; border-radius: 2px; background: color-mix(in oklab, white 24%, transparent); }.project-preview-panel span:first-child { width: 70%; background: color-mix(in oklab, var(--accent) 90%, white); }
+
+@media (max-width: 767px) {
+  .status-bar { height: 34px; padding: 0 12px; font-size: 0.54rem; letter-spacing: 0.04em; }
+  .status-brand { gap: 8px; }.status-center { position: static !important; transform: none !important; gap: 5px; }
+  .status-meta { gap: 7px; }.status-meta button { font-size: 0 !important; }.status-meta button svg { width: 12px; height: 12px; }
+  .status-date { display: none; }
+  .desktop-widgets { display: none; }
+  .window-stage { top: 34px !important; bottom: 82px !important; }
+  .window-stage > div { top: 8px !important; left: 10px !important; right: 10px !important; width: auto !important; }
+  .window-stage .glass-window { width: 100% !important; max-width: none !important; max-height: calc(100dvh - 132px) !important; border-radius: 12px; }
+  .glass-window-titlebar { padding: 8px 11px !important; }
+  .hero-content { padding: 26px 22px 20px; }
+  .hero-name { font-size: clamp(3.3rem, 18vw, 4.8rem); }
+  .hero-description { font-size: 0.82rem; line-height: 1.7; }
+  .hero-profile { align-items: flex-start; }.hero-socials { gap: 10px; }
+  .glass-window-content { overflow-x: hidden; }
+  .dock { left: 10px; right: 10px; bottom: 10px; transform: none; max-width: none; overflow-x: auto; justify-content: flex-start; gap: 4px; padding: 8px 10px; border-radius: 20px; }
+  .dock > * { flex: 0 0 auto; }.dock-icon { width: 40px !important; height: 40px !important; border-radius: 11px !important; }.dock-icon svg { width: 18px; height: 18px; }.dock-sep { height: 28px; margin: 0 2px; }
+  .window-footer { padding: 10px 12px !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }

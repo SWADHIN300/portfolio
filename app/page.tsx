@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo } from "react";
+import {
+    useState, useEffect, useRef, useCallback
+} from "react";
 import {
     motion, AnimatePresence,
     useMotionValue, useTransform, useSpring,
@@ -9,9 +11,11 @@ import {
     Sun, Moon, Home, User, FolderOpen, Cpu, Mail, Github, Twitter,
     ExternalLink, Send, CheckCircle, AlertCircle, Loader, Briefcase,
     BookOpen, Terminal as TerminalIcon, Wrench, FileText, FileDown,
-    X as XIcon, Music, Link as LinkIcon,
+    X as XIcon, Music, Link as LinkIcon, Maximize2, Minimize2, HelpCircle,
+    Pause, Play,
 } from "lucide-react";
-import { defaultProjects, defaultSkills } from "@/lib/data";
+import { defaultProjects, defaultSkills, iconMap, type Project } from "@/lib/data";
+import { Braces } from "lucide-react";
 import Image from "next/image";
 
 /* ══════════════════════════════════════════╗
@@ -43,48 +47,281 @@ function StatusBar({ isDark, onToggle }: { isDark: boolean; onToggle: () => void
         return () => clearInterval(id);
     }, []);
     return (
-        <div className="status-bar">
-            <span style={{ color: "var(--fg)", fontWeight: 700, letterSpacing: "0.2em" }}>SR</span>
-            <span style={{ marginLeft: 10,paddingRight:10}}>Portfolio</span>
-            <div style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", display: "flex", alignItems: "center", gap: 8 }}>
+        <header className="status-bar">
+            <div className="status-brand">
+                <span style={{ color: "var(--fg)", fontWeight: 700, letterSpacing: "0.2em" }}>SR</span>
+                <span>Portfolio</span>
+            </div>
+            <div className="status-center">
                 <span className="status-dot" />
                 <span>Open to Work</span>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                <button onClick={onToggle} style={{ background: "none", border: "none", cursor: "pointer", color: "var(--fg-muted)", padding: 0, display: "flex", alignItems: "center", gap: 4, fontSize: "0.62rem", fontFamily: "var(--font-space-mono), monospace", letterSpacing: "0.1em", textTransform: "uppercase" }}>
+            <div className="status-meta">
+                <button onClick={onToggle} aria-label="Toggle color theme" style={{ background: "none", border: "none", cursor: "pointer", color: "var(--fg-muted)", padding: 0, display: "flex", alignItems: "center", gap: 4, fontSize: "0.62rem", fontFamily: "var(--font-space-mono), monospace", letterSpacing: "0.1em", textTransform: "uppercase" }}>
                     {isDark ? <><Sun size={10} /> Light</> : <><Moon size={10} /> Dark</>}
                 </button>
-                <span>{date}</span>
+                <span className="status-date">{date}</span>
                 <span style={{ color: "var(--fg)" }}>{time}</span>
+            </div>
+        </header>
+    );
+}
+
+/* ══════════════════════════════════════════╗
+   MAC-STYLE FOOTER BAR
+╚══════════════════════════════════════════ */
+function WindowFooter({ children, left, center, right }: {
+    children?: React.ReactNode;
+    left?: React.ReactNode;
+    center?: React.ReactNode;
+    right?: React.ReactNode;
+}) {
+    return (
+        <div
+            className="window-footer"
+            style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '14px 20px',
+                borderTop: '1px solid var(--widget-border)',
+                background: 'color-mix(in oklab, var(--card) 85%, var(--background) 15%)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                borderBottomLeftRadius: '12px',
+                borderBottomRightRadius: '12px',
+                flexShrink: 0,
+                minHeight: 56,
+            }}
+        >
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                {left}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                {center}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                {right}
             </div>
         </div>
     );
 }
 
 /* ══════════════════════════════════════════╗
-   WINDOW WRAPPER
+   MAC-STYLE BUTTON
 ╚══════════════════════════════════════════ */
-function Window({ id, title, children, onClose, width = "min(640px, 92vw)", maxH = "76vh" }: {
+function MacButton({ 
+    children, 
+    onClick, 
+    variant = 'default', 
+    size = 'sm',
+    disabled,
+    ...props 
+}: {
+    children: React.ReactNode;
+    onClick?: () => void;
+    variant?: 'default' | 'primary' | 'danger' | 'ghost';
+    size?: 'sm' | 'md';
+    disabled?: boolean;
+    [key: string]: any;
+}) {
+    const baseStyle: React.CSSProperties = {
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 6,
+        fontFamily: 'var(--font-space-mono), monospace',
+        fontSize: size === 'sm' ? '0.62rem' : '0.7rem',
+        letterSpacing: '0.1em',
+        textTransform: 'uppercase',
+        fontWeight: 600,
+        borderRadius: 6,
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        transition: 'all 0.15s ease',
+        opacity: disabled ? 0.5 : 1,
+        border: 'none',
+        outline: 'none',
+        ...props,
+    };
+
+    const variants = {
+        default: {
+            background: 'color-mix(in oklab, var(--fg) 12%, transparent)',
+            color: 'var(--fg)',
+            border: '1px solid color-mix(in oklab, var(--fg) 20%, transparent)',
+            boxShadow: 'inset 0 1px 0 color-mix(in oklab, var(--fg) 15%, transparent)',
+        },
+        primary: {
+            background: 'var(--accent)',
+            color: 'var(--accent-foreground)',
+            boxShadow: 'inset 0 1px 0 color-mix(in oklab, var(--accent-foreground) 20%, transparent), 0 2px 8px color-mix(in oklab, var(--accent) 30%, transparent)',
+        },
+        danger: {
+            background: 'var(--destructive)',
+            color: 'var(--destructive-foreground)',
+            boxShadow: 'inset 0 1px 0 color-mix(in oklab, var(--destructive-foreground) 20%, transparent), 0 2px 8px color-mix(in oklab, var(--destructive) 30%, transparent)',
+        },
+        ghost: {
+            background: 'transparent',
+            color: 'var(--fg-muted)',
+            border: '1px solid transparent',
+        },
+    };
+
+    const sizes = {
+        sm: { padding: '8px 14px', minWidth: 76, height: 32 },
+        md: { padding: '10px 18px', minWidth: 96, height: 36 },
+    };
+
+    const hoverStyles = {
+        default: { background: 'color-mix(in oklab, var(--fg) 20%, transparent)', transform: 'translateY(-1px)', boxShadow: 'inset 0 1px 0 color-mix(in oklab, var(--fg) 15%, transparent), 0 4px 12px rgba(0,0,0,0.15)' },
+        primary: { background: 'color-mix(in oklab, var(--accent) 90%, var(--fg) 10%)', transform: 'translateY(-1px)', boxShadow: 'inset 0 1px 0 color-mix(in oklab, var(--accent-foreground) 20%, transparent), 0 4px 16px color-mix(in oklab, var(--accent) 40%, transparent)' },
+        danger: { background: 'color-mix(in oklab, var(--destructive) 90%, var(--fg) 10%)', transform: 'translateY(-1px)', boxShadow: 'inset 0 1px 0 color-mix(in oklab, var(--destructive-foreground) 20%, transparent), 0 4px 16px color-mix(in oklab, var(--destructive) 40%, transparent)' },
+        ghost: { background: 'color-mix(in oklab, var(--fg) 8%, transparent)', color: 'var(--fg)' },
+    };
+
+    return (
+        <button
+            {...props}
+            onClick={onClick}
+            disabled={disabled}
+            style={{
+                ...baseStyle,
+                ...variants[variant],
+                ...sizes[size],
+            }}
+            onMouseEnter={(e) => !disabled && Object.assign(e.currentTarget.style, hoverStyles[variant])}
+            onMouseLeave={(e) => !disabled && Object.assign(e.currentTarget.style, { ...variants[variant], ...sizes[size] })}
+            onMouseDown={(e) => !disabled && Object.assign(e.currentTarget.style, { transform: 'translateY(0)' })}
+            onMouseUp={(e) => !disabled && Object.assign(e.currentTarget.style, hoverStyles[variant])}
+        >
+            {children}
+        </button>
+    );
+}
+function Window({ id, title, children, onClose, onFocus, width = "min(640px, 92vw)", maxH = "76vh", isMaximized = false, onMaximize, onMinimize, maximizable = true, footer }: {
     id: string; title: string; children: React.ReactNode;
     onClose: () => void; width?: string; maxH?: string;
+    isMaximized?: boolean; onFocus?: () => void; onMaximize?: () => void; onMinimize?: () => void;
+    maximizable?: boolean;
+    footer?: React.ReactNode;
 }) {
+    const [position, setPosition] = useState({ x: 0, y: 0 });
+    const [isDragging, setIsDragging] = useState(false);
+    const dragOffset = useRef({ x: 0, y: 0 });
+    const initialPos = useRef({ x: 0, y: 0 });
+    const windowRef = useRef<HTMLDivElement>(null);
+    const [showTooltips, setShowTooltips] = useState(false);
+
+    const handleMouseDown = (e: React.MouseEvent) => {
+        if (isMaximized) return;
+        if ((e.target as HTMLElement).closest('.window-btn')) return;
+        setIsDragging(true);
+        const rect = windowRef.current?.getBoundingClientRect();
+        if (rect) {
+            dragOffset.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+            initialPos.current = { x: rect.left, y: rect.top };
+        }
+        setShowTooltips(false);
+        onFocus?.();
+    };
+
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            if (!isDragging || isMaximized) return;
+            const newX = e.clientX - dragOffset.current.x;
+            const newY = e.clientY - dragOffset.current.y;
+            // Keep window within viewport
+            const maxX = window.innerWidth - (windowRef.current?.offsetWidth || 0);
+            const maxY = window.innerHeight - (windowRef.current?.offsetHeight || 0) - 100; // Account for dock
+            setPosition({
+                x: Math.max(0, Math.min(newX, maxX)),
+                y: Math.max(0, Math.min(newY, maxY))
+            });
+        };
+
+        const handleMouseUp = () => setIsDragging(false);
+
+        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mouseup', handleMouseUp);
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [isDragging, isMaximized]);
+
+    const handleDoubleClick = () => {
+        if (!isMaximized) onMaximize?.();
+        else onMinimize?.();
+    };
+
+    const windowStyle: React.CSSProperties = {
+        width: isMaximized ? '100vw' : width,
+        height: isMaximized ? 'calc(100vh - 120px)' : undefined,
+        maxHeight: isMaximized ? 'calc(100vh - 120px)' : maxH,
+        top: isMaximized ? 32 : undefined,
+        left: isMaximized ? 0 : undefined,
+        transform: isMaximized ? 'none' : undefined,
+        borderRadius: isMaximized ? 0 : undefined,
+        display: 'flex',
+        flexDirection: 'column',
+        position: isMaximized ? 'fixed' : 'relative',
+        zIndex: isMaximized ? 1000 : undefined,
+    };
+
     return (
         <motion.div
+            ref={windowRef}
             key={id}
             initial={{ scale: 0.82, opacity: 0, y: 40 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.82, opacity: 0, y: 24 }}
             transition={{ type: "spring", stiffness: 340, damping: 30 }}
             className="glass-window"
-            style={{ width, display: "flex", flexDirection: "column", maxHeight: maxH }}
+            style={{ ...windowStyle, transform: isMaximized ? 'none' : (isDragging ? 'none' : undefined) }}
+            onMouseDown={handleMouseDown}
+            onDoubleClick={handleDoubleClick}
+            onMouseEnter={() => setShowTooltips(true)}
+            onMouseLeave={() => setShowTooltips(false)}
         >
-            <div className="glass-window-titlebar">
-                <span className="traffic-dot traffic-close" onClick={onClose} style={{ cursor: "pointer" }} />
-                <span className="traffic-dot traffic-min" />
-                <span className="traffic-dot traffic-max" />
-                <span style={{ flex: 1, textAlign: "center", fontFamily: "var(--font-space-mono), monospace", fontSize: "0.6rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--fg-muted)" }}>{title}</span>
+            <div
+                className="glass-window-titlebar"
+                style={{ cursor: isMaximized ? 'default' : 'move', userSelect: 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px' }}
+            >
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <button
+                        className="traffic-dot traffic-close window-btn"
+                        onClick={onClose}
+                        aria-label="Close"
+                        style={{ width: 12, height: 12, borderRadius: '50%', background: '#ff5f57', border: 'none', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}
+                    >
+                        {showTooltips && <span className="btn-tooltip">Close</span>}
+                    </button>
+                    <button
+                        className="traffic-dot traffic-min window-btn"
+                        onClick={onMinimize}
+                        aria-label="Minimize"
+                        style={{ width: 12, height: 12, borderRadius: '50%', background: '#febc2e', border: 'none', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}
+                    >
+                        {showTooltips && <span className="btn-tooltip">Minimize</span>}
+                    </button>
+                    {maximizable && (
+                        <button
+                            className={`traffic-dot traffic-max window-btn ${isMaximized ? 'maximized' : ''}`}
+                            onClick={isMaximized ? onMinimize : onMaximize}
+                            aria-label={isMaximized ? "Restore" : "Maximize"}
+                            style={{ width: 12, height: 12, borderRadius: '50%', background: 'var(--status-green)', border: 'none', cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}
+                        >
+                            {isMaximized ? <Minimize2 size={8} /> : <Maximize2 size={8} />}
+                            {showTooltips && <span className="btn-tooltip">{isMaximized ? 'Restore' : 'Maximize'}</span>}
+                        </button>
+                    )}
+                </div>
+                <span style={{ fontFamily: "var(--font-space-mono), monospace", fontSize: "0.6rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--fg-muted)" }}>{title}</span>
+                <div style={{ width: 46 }} />
             </div>
-            <div style={{ overflowY: "auto", flex: 1 }}>{children}</div>
+            <div className="glass-window-content" style={{ overflowY: "auto", flex: 1, minHeight: 0 }}>{children}</div>
+            {footer && <div style={{ flexShrink: 0 }}>{footer}</div>}
         </motion.div>
     );
 }
@@ -105,10 +342,10 @@ function Widget({ children, style }: { children: React.ReactNode; style?: React.
             initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
             style={{
-                background: "rgba(18,18,18,0.82)",
+                background: "var(--widget-bg)",
                 backdropFilter: "blur(16px)",
                 WebkitBackdropFilter: "blur(16px)",
-                border: "1px solid rgba(255,255,255,0.09)",
+                border: "1px solid var(--widget-border)",
                 borderRadius: 10,
                 padding: "14px 16px",
                 fontFamily: "var(--font-space-mono), monospace",
@@ -120,6 +357,92 @@ function Widget({ children, style }: { children: React.ReactNode; style?: React.
     );
 }
 
+/* ══════════════════════════════════════════╗
+   DRAGGABLE WIDGET WRAPPER
+╚══════════════════════════════════════════ */
+function DraggableWidget({
+    children,
+    initialPosition,
+    storageKey,
+    style,
+}: {
+    children: React.ReactNode;
+    initialPosition: { x: number; y: number };
+    storageKey: string;
+    style?: React.CSSProperties;
+}) {
+    const [position, setPosition] = useState<{ x: number; y: number }>(() => {
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem(storageKey);
+            if (saved) {
+                try { return JSON.parse(saved); } catch {}
+            }
+        }
+        return initialPosition;
+    });
+    const [isDragging, setIsDragging] = useState(false);
+    const dragOffset = useRef({ x: 0, y: 0 });
+    const widgetRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        localStorage.setItem(storageKey, JSON.stringify(position));
+    }, [position, storageKey]);
+
+    const handleMouseDown = (e: React.MouseEvent) => {
+        if ((e.target as HTMLElement).closest('a, button, input')) return;
+        setIsDragging(true);
+        const rect = widgetRef.current?.getBoundingClientRect();
+        if (rect) {
+            dragOffset.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+        }
+    };
+
+    useEffect(() => {
+        if (!isDragging) return;
+
+        const handleMouseMove = (e: MouseEvent) => {
+            if (!widgetRef.current) return;
+            const newX = e.clientX - dragOffset.current.x;
+            const newY = e.clientY - dragOffset.current.y;
+            const maxX = window.innerWidth - (widgetRef.current.offsetWidth || 0);
+            const maxY = window.innerHeight - (widgetRef.current.offsetHeight || 0) - 100;
+            setPosition({
+                x: Math.max(0, Math.min(newX, maxX)),
+                y: Math.max(0, Math.min(newY, maxY)),
+            });
+        };
+
+        const handleMouseUp = () => setIsDragging(false);
+
+        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mouseup', handleMouseUp);
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [isDragging]);
+
+    return (
+        <div
+            ref={widgetRef}
+            className={`draggable-widget ${isDragging ? 'dragging' : ''}`}
+            style={{
+                position: 'fixed',
+                left: position.x,
+                top: position.y,
+                zIndex: isDragging ? 9999 : 5,
+                transition: isDragging ? 'none' : 'box-shadow 0.2s ease',
+                ...style,
+            }}
+            onMouseDown={handleMouseDown}
+            onMouseUp={() => setIsDragging(false)}
+            onMouseLeave={() => setIsDragging(false)}
+        >
+            {children}
+        </div>
+    );
+}
+
 function QuoteWidget() {
     const [idx, setIdx] = useState(0);
     useEffect(() => { const id = setInterval(() => setIdx(i => (i + 1) % QUOTES.length), 8000); return () => clearInterval(id); }, []);
@@ -128,37 +451,37 @@ function QuoteWidget() {
         <Widget>
             <AnimatePresence mode="wait">
                 <motion.p key={idx} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.6 }}
-                    style={{ fontSize: "0.7rem", color: "rgba(240,240,240,0.8)", lineHeight: 1.6, fontStyle: "italic", marginBottom: 10 }}>
+                    style={{ fontSize: "0.7rem", color: "var(--widget-strong)", lineHeight: 1.6, fontStyle: "italic", marginBottom: 10 }}>
                     &ldquo;{q.text}&rdquo;
                 </motion.p>
             </AnimatePresence>
             <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 6 }}>
                 {QUOTES.map((_, i) => (
-                    <span key={i} style={{ width: i === idx ? 16 : 5, height: 3, borderRadius: 2, background: i === idx ? "rgba(255,255,255,0.7)" : "rgba(255,255,255,0.2)", transition: "all 0.3s" }} />
+                    <span key={i} style={{ width: i === idx ? 16 : 5, height: 3, borderRadius: 2, background: i === idx ? "var(--widget-muted)" : "var(--widget-surface-strong)", transition: "all 0.3s" }} />
                 ))}
             </div>
-            <p style={{ fontSize: "0.55rem", color: "rgba(240,240,240,0.35)", letterSpacing: "0.2em", textTransform: "uppercase" }}>— SR · WRITING</p>
+            <p style={{ fontSize: "0.55rem", color: "var(--widget-subtle)", letterSpacing: "0.2em", textTransform: "uppercase" }}>- SR · WRITING</p>
         </Widget>
     );
 }
 
 function LinksWidget() {
     const links = [
-        { title: "The Zen of Erlang", sub: "Fred Hebert · systems" },
-        { title: "You Don't Know JS", sub: "Kyle Simpson · js" },
-        { title: "The Pragmatic Programmer", sub: "Hunt & Thomas · craft" },
-        { title: "Clean Architecture", sub: "Robert C. Martin · design" },
-        { title: "Designing Data-Intensive Apps", sub: "Kleppmann · systems" },
+        { title: "The Zen of Erlang", sub: "Fred Hebert · systems", href: "https://ferd.ca/the-zen-of-erlang.html" },
+        { title: "You Don't Know JS", sub: "Kyle Simpson · js", href: "https://github.com/getify/You-Dont-Know-JS" },
+        { title: "The Pragmatic Programmer", sub: "Hunt & Thomas · craft", href: "https://pragprog.com/titles/tpp20/the-pragmatic-programmer-20th-anniversary-edition/" },
+        { title: "Clean Architecture", sub: "Robert C. Martin · design", href: "https://www.oreilly.com/library/view/clean-architecture-a/9780134494272/" },
+        { title: "Designing Data-Intensive Apps", sub: "Kleppmann · systems", href: "https://dataintensive.net/" },
     ];
     return (
         <Widget>
-            <p style={{ fontSize: "0.55rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(240,240,240,0.35)", marginBottom: 12 }}>Links · Worth Reading</p>
+            <p style={{ fontSize: "0.55rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--widget-subtle)", marginBottom: 12 }}>Links · Worth Reading</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 9 }}>
                 {links.map(l => (
-                    <div key={l.title} style={{ borderBottom: "1px solid rgba(255,255,255,0.06)", paddingBottom: 9 }}>
-                        <p style={{ fontSize: "0.68rem", color: "rgba(240,240,240,0.85)", marginBottom: 2 }}>{l.title}</p>
-                        <p style={{ fontSize: "0.55rem", color: "rgba(240,240,240,0.35)", letterSpacing: "0.08em" }}>{l.sub}</p>
-                    </div>
+                    <a key={l.title} href={l.href} target="_blank" rel="noopener noreferrer" style={{ display: "block", borderBottom: "1px solid var(--widget-surface)", paddingBottom: 9 }}>
+                        <p style={{ fontSize: "0.68rem", color: "var(--widget-bright)", marginBottom: 2 }}>{l.title}</p>
+                        <p style={{ fontSize: "0.55rem", color: "var(--widget-subtle)", letterSpacing: "0.08em" }}>{l.sub}</p>
+                    </a>
                 ))}
             </div>
         </Widget>
@@ -166,17 +489,85 @@ function LinksWidget() {
 }
 
 function MusicWidget() {
+    const [trackInfo, setTrackInfo] = useState({
+        title: "Blinding Lights",
+        artist: "The Weeknd",
+        album: "After Hours",
+        progress: 0,
+        duration: 200,
+        isPlaying: false,
+        colors: { primary: "#ff0000", secondary: "#000000" },
+    });
+    const [colorTheme, setColorTheme] = useState('blinding-lights');
+
+    useEffect(() => {
+        setTrackInfo({
+            title: "Blinding Lights",
+            artist: "The Weeknd",
+            album: "After Hours",
+            progress: 0,
+            duration: 200,
+            isPlaying: true,
+            colors: { primary: "#ff0000", secondary: "#000000" },
+        });
+        setColorTheme('blinding-lights');
+
+        const tracks = [
+            { title: "Blinding Lights", artist: "The Weeknd", album: "After Hours", duration: 200, colors: { primary: "#ff0000", secondary: "#000000" }, theme: 'blinding-lights' },
+            { title: "Is There Someone Else?", artist: "The Weeknd", album: "Dawn FM", duration: 180, colors: { primary: "#8a2be2", secondary: "#191970" }, theme: 'is-there-someone-else' },
+            { title: "Popular", artist: "The Weeknd, Playboi Carti & Madonna", album: "The Highlights", duration: 190, colors: { primary: "#ff1493", secondary: "#fff0f5" }, theme: 'popular' }
+        ];
+
+        const progressInterval = setInterval(() => {
+            setTrackInfo(prev => {
+                if (!prev.isPlaying) return prev;
+                const newProgress = Math.min(prev.progress + 1, prev.duration);
+                if (newProgress >= prev.duration) {
+                    const currentIndex = tracks.findIndex(t => t.title === prev.title);
+                    const nextIndex = (currentIndex + 1) % tracks.length;
+                    const nextTrack = tracks[nextIndex];
+                    setColorTheme(nextTrack.theme);
+                    return {
+                        title: nextTrack.title,
+                        artist: nextTrack.artist,
+                        album: nextTrack.album,
+                        progress: 0,
+                        duration: nextTrack.duration,
+                        isPlaying: true,
+                        colors: nextTrack.colors,
+                    };
+                }
+                return { ...prev, progress: newProgress };
+            });
+        }, 1000);
+
+        return () => clearInterval(progressInterval);
+    }, []);
+
+    useEffect(() => {
+        document.documentElement.style.setProperty('--music-primary', trackInfo.colors.primary);
+        document.documentElement.style.setProperty('--music-secondary', trackInfo.colors.secondary);
+    }, [trackInfo]);
+
     return (
-        <Widget style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{ width: 32, height: 32, borderRadius: 6, background: "rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <Music size={14} style={{ color: "rgba(240,240,240,0.5)" }} />
-            </div>
-            <div>
-                <p style={{ fontSize: "0.62rem", color: "rgba(240,240,240,0.5)" }}>not playing</p>
-                <div style={{ display: "flex", gap: 3, marginTop: 3 }}>
-                    {[3, 6, 4, 7, 5, 3, 8].map((h, i) => (
-                        <div key={i} style={{ width: 2, height: h, background: "rgba(240,240,240,0.2)", borderRadius: 1 }} />
-                    ))}
+        <Widget style={{ display: "flex", alignItems: "center", gap: 10, position: "relative", minWidth: 220 }}>
+            <button
+                onClick={() => setTrackInfo(prev => ({ ...prev, isPlaying: !prev.isPlaying }))}
+                style={{ width: 32, height: 32, borderRadius: 6, background: "var(--widget-surface)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, cursor: "pointer", border: "1px solid var(--widget-border)" }}
+                aria-label={trackInfo.isPlaying ? "Pause" : "Play"}
+            >
+                {trackInfo.isPlaying ? <Pause size={14} style={{ color: "var(--widget-bright)" }} /> : <Play size={14} style={{ color: "var(--widget-muted)" }} />}
+            </button>
+            <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
+                <p style={{ fontSize: "0.62rem", color: "var(--widget-bright)", fontWeight: 600, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{trackInfo.title}</p>
+                <p style={{ fontSize: "0.55rem", color: "var(--widget-strong)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{trackInfo.artist} · {trackInfo.album}</p>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
+                    <div style={{ width: 80, height: 4, background: "var(--widget-surface)", borderRadius: 2, position: "relative", flexShrink: 0 }}>
+                        <div style={{ position: "absolute", left: 0, top: 0, height: "100%", width: `${(trackInfo.progress / trackInfo.duration) * 100}%`, background: "var(--widget-bright)", borderRadius: 2 }}></div>
+                    </div>
+                    <span style={{ fontSize: "0.5rem", color: "var(--widget-muted)", whiteSpace: "nowrap" }}>
+                        {`${Math.floor(trackInfo.progress / 60)}:${String(trackInfo.progress % 60).padStart(2, '0')} / ${Math.floor(trackInfo.duration / 60)}:${String(trackInfo.duration % 60).padStart(2, '0')}`}
+                    </span>
                 </div>
             </div>
         </Widget>
@@ -185,21 +576,23 @@ function MusicWidget() {
 
 function StatusWidget() {
     return (
-        <Widget>
+        <Widget style={{ minWidth: 200 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12 }}>
                 <span className="status-dot" />
-                <p style={{ fontSize: "0.6rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(240,240,240,0.7)" }}>Open to Work</p>
+                <p style={{ fontSize: "0.6rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--widget-muted)" }}>Open to Work</p>
             </div>
-            {[
-                { label: "Building", value: "Portfolio v2" },
-                { label: "Reading", value: "Clean Architecture" },
-                { label: "Writing", value: "Dev Blog Posts" },
-            ].map(({ label, value }) => (
-                <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
-                    <p style={{ fontSize: "0.55rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(240,240,240,0.35)" }}>{label}</p>
-                    <p style={{ fontSize: "0.68rem", color: "rgba(240,240,240,0.8)" }}>{value}</p>
-                </div>
-            ))}
+            {
+                [
+                    { label: "Building", value: "ApeX terminal" },
+                    { label: "Reading", value: "The Pragmatic Programmer" },
+                    { label: "Writing", value: "Systems notes" },
+                ].map(({ label, value }) => (
+                    <div key={label} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 8 }}>
+                        <p style={{ fontSize: "0.55rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--widget-subtle)" }}>{label}</p>
+                        <p style={{ fontSize: "0.68rem", color: "var(--widget-strong)" }}>{value}</p>
+                    </div>
+                ))
+            }
         </Widget>
     );
 }
@@ -221,22 +614,22 @@ function CalendarWidget() {
     const days: (number | null)[] = Array(firstDay).fill(null);
     for (let d = 1; d <= daysInMonth; d++) days.push(d);
     return (
-        <Widget>
+        <Widget style={{ minWidth: 200 }}>
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
-                <p style={{ fontSize: "0.75rem", fontWeight: 700, color: "rgba(240,240,240,0.85)" }}>{monthName}</p>
-                <p style={{ fontSize: "0.65rem", color: "rgba(240,240,240,0.35)" }}>{year}</p>
+                <p style={{ fontSize: "0.75rem", fontWeight: 700, color: "var(--widget-bright)" }}>{monthName}</p>
+                <p style={{ fontSize: "0.65rem", color: "var(--widget-subtle)" }}>{year}</p>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 2, marginBottom: 6 }}>
                 {["S","M","T","W","T","F","S"].map((d, i) => (
-                    <p key={i} style={{ fontSize: "0.5rem", textAlign: "center", color: "rgba(240,240,240,0.3)", letterSpacing: "0.05em" }}>{d}</p>
+                    <p key={i} style={{ fontSize: "0.5rem", textAlign: "center", color: "var(--widget-faint)", letterSpacing: "0.05em" }}>{d}</p>
                 ))}
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 2 }}>
                 {days.map((d, i) => (
                     <div key={i} style={{
                         fontSize: "0.55rem", textAlign: "center", padding: "3px 0", borderRadius: 4,
-                        color: d !== null && d === today ? "black" : "rgba(240,240,240,0.55)",
-                        background: d !== null && d === today ? "rgba(240,240,240,0.9)" : "transparent",
+                        color: d !== null && d === today ? "var(--background)" : "var(--widget-muted)",
+                        background: d !== null && d === today ? "var(--foreground)" : "transparent",
                         fontWeight: d !== null && d === today ? 700 : 400,
                     }}>
                         {d ?? ""}
@@ -337,9 +730,8 @@ function buildContributionGrid(days: Array<Record<string, unknown>>, weeks: numb
 }
 
 function GithubGrid({ style }: { style?: React.CSSProperties }) {
-    // GitHub's exact 5-level green palette
     const GH_COLORS = ["#161b22", "#0e4429", "#006d32", "#26a641", "#39d353"];
-    const FUTURE_COLOR = "rgba(255,255,255,0.04)";
+    const FUTURE_COLOR = "var(--widget-surface)";
     const CELL = 11;
     const GAP  = 3;
 
@@ -347,11 +739,9 @@ function GithubGrid({ style }: { style?: React.CSSProperties }) {
     const TODAY = new Date();
     TODAY.setHours(0, 0, 0, 0);
 
-    // Build the full Jan–Dec week columns for this year
-    const yearStart = new Date(YEAR, 0, 1);         // Jan 1
-    const yearEnd   = new Date(YEAR, 11, 31);        // Dec 31
-    // Pad so the first column always starts on Sunday
-    const startOffset = yearStart.getDay();           // 0=Sun
+    const yearStart = new Date(YEAR, 0, 1);
+    const yearEnd   = new Date(YEAR, 11, 31);
+    const startOffset = yearStart.getDay();
     const totalCells  = startOffset + (Math.ceil((yearEnd.getTime() - yearStart.getTime()) / 86400000) + 1);
     const WEEKS = Math.ceil(totalCells / 7);
 
@@ -369,33 +759,38 @@ function GithubGrid({ style }: { style?: React.CSSProperties }) {
 
     const [yearTotal, setYearTotal] = useState<number | null>(null);
     const [mode, setMode]           = useState<"loading" | "live" | "fallback">("loading");
+    const [retryCount, setRetryCount] = useState(0);
 
-    useEffect(() => {
+    const loadContributions = useCallback(async () => {
         let active = true;
 
         const load = async () => {
             const endpoints = [
-                `/api/github-contributions?y=${YEAR}`,
+                `/api/github-contributions?y=${YEAR}&t=${retryCount}`,
                 `https://github-contributions-api.jogruber.de/v4/SWADHIN300?y=${YEAR}`,
+                `https://github-contributions-api.deno.dev/SWADHIN300.json`,
             ];
 
             for (const endpoint of endpoints) {
                 try {
-                    const res = await fetch(endpoint);
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+                    const res = await fetch(endpoint, { signal: controller.signal });
+                    clearTimeout(timeoutId);
+
                     if (!res.ok) continue;
                     const payload = await res.json();
                     const days = parseContributionDays(payload);
                     if (!days.length) continue;
                     if (!active) return;
 
-                    // Build a date → level map
                     const levelMap = new Map<string, number>();
                     days.forEach(day => {
                         const dateStr = (day.date ?? day.day ?? "") as string;
                         if (dateStr) levelMap.set(dateStr.slice(0, 10), parseContributionLevel(day));
                     });
 
-                    // Year total from API's total field, fallback to summing
                     const apiTotal = (payload as Record<string, unknown>).total as Record<string, number> | undefined;
                     const total = apiTotal?.[YEAR] ?? days.reduce((s, d) => s + parseContributionCount(d), 0);
 
@@ -418,9 +813,13 @@ function GithubGrid({ style }: { style?: React.CSSProperties }) {
 
         load();
         return () => { active = false; };
-    }, [YEAR]);
+    }, [YEAR, retryCount]);
 
-    // Month labels: one per column where month changes
+    useEffect(() => {
+        setMode("loading");
+        loadContributions();
+    }, [loadContributions]);
+
     const MONTH_NAMES = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
     const monthLabels: { label: string; col: number }[] = [];
     let lastMonth = -1;
@@ -436,39 +835,57 @@ function GithubGrid({ style }: { style?: React.CSSProperties }) {
         }
     }
 
-    // Reshape flat cells into week columns
     const weekCols: CellInfo[][] = [];
     for (let w = 0; w < WEEKS; w++) weekCols.push(cells.slice(w * 7, w * 7 + 7));
 
     return (
-        <Widget style={{ padding: "10px 14px", ...style }}>
-            {/* Header */}
+        <Widget style={{ padding: "10px 14px", ...style, minWidth: 280 }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                <p style={{ fontSize: "0.5rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(240,240,240,0.3)" }}>
+                <p style={{ fontSize: "0.5rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--widget-faint)" }}>
                     {mode === "live" && yearTotal !== null
                         ? `${yearTotal.toLocaleString()} contributions in ${YEAR}`
                         : mode === "loading"
                             ? "Loading contributions..."
                             : `Contributions ${YEAR} · github.com/SWADHIN300`}
                 </p>
-                <a href="https://github.com/SWADHIN300" target="_blank" rel="noopener noreferrer"
-                    style={{ color: "rgba(240,240,240,0.25)", display: "flex", alignItems: "center", pointerEvents: "auto" }}>
-                    <Github size={11} />
-                </a>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    {mode === "fallback" && (
+                        <button
+                            onClick={() => setRetryCount(c => c + 1)}
+                            style={{
+                                background: "none",
+                                border: "1px solid var(--widget-border)",
+                                color: "var(--widget-muted)",
+                                fontSize: "0.45rem",
+                                fontFamily: "var(--font-space-mono), monospace",
+                                letterSpacing: "0.1em",
+                                textTransform: "uppercase",
+                                padding: "2px 8px",
+                                borderRadius: 3,
+                                cursor: "pointer",
+                                transition: "all 0.2s ease",
+                            }}
+                        >
+                            Retry
+                        </button>
+                    )}
+                    <a href="https://github.com/SWADHIN300" target="_blank" rel="noopener noreferrer" aria-label="GitHub profile"
+                        style={{ color: "var(--widget-faint)", display: "flex", alignItems: "center", pointerEvents: "auto" }}>
+                        <Github size={11} />
+                    </a>
+                </div>
             </div>
 
-            {/* Scrollable graph */}
             <div style={{ overflowX: "auto", overflowY: "hidden", paddingBottom: 2 }}>
                 <div style={{ position: "relative", minWidth: WEEKS * (CELL + GAP) - GAP }}>
 
-                    {/* Month labels */}
                     <div style={{ position: "relative", height: 14, marginBottom: 2 }}>
                         {monthLabels.map(({ label, col }) => (
                             <span key={`${label}-${col}`} style={{
                                 position: "absolute",
                                 left: col * (CELL + GAP),
                                 fontSize: "0.46rem",
-                                color: "rgba(240,240,240,0.28)",
+                                color: "var(--widget-faint)",
                                 letterSpacing: "0.05em",
                                 fontFamily: "var(--font-space-mono), monospace",
                                 textTransform: "uppercase",
@@ -477,7 +894,6 @@ function GithubGrid({ style }: { style?: React.CSSProperties }) {
                         ))}
                     </div>
 
-                    {/* Grid */}
                     <div style={{ display: "flex", gap: GAP }}>
                         {weekCols.map((week, wi) => (
                             <div key={wi} style={{ display: "flex", flexDirection: "column", gap: GAP }}>
@@ -501,7 +917,7 @@ function GithubGrid({ style }: { style?: React.CSSProperties }) {
                                                 height: CELL,
                                                 borderRadius: 3,
                                                 background: bg,
-                                                border: isBlank ? "none" : `1px solid ${cell.level > 0 ? "rgba(255,255,255,0.07)" : "rgba(255,255,255,0.04)"}`,
+                                                border: isBlank ? "none" : `1px solid ${cell.level > 0 ? "var(--widget-border)" : "var(--widget-surface)"}`,
                                                 transition: "background 0.3s ease",
                                             }}
                                             title={
@@ -516,13 +932,12 @@ function GithubGrid({ style }: { style?: React.CSSProperties }) {
                         ))}
                     </div>
 
-                    {/* Legend */}
                     <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 8, justifyContent: "flex-end" }}>
-                        <span style={{ fontSize: "0.42rem", color: "rgba(240,240,240,0.22)", fontFamily: "var(--font-space-mono), monospace" }}>Less</span>
+                        <span style={{ fontSize: "0.42rem", color: "var(--widget-faint)", fontFamily: "var(--font-space-mono), monospace" }}>Less</span>
                         {GH_COLORS.map((c, i) => (
-                            <div key={i} style={{ width: 8, height: 8, borderRadius: 2, background: c, border: "1px solid rgba(255,255,255,0.05)" }} />
+                            <div key={i} style={{ width: 8, height: 8, borderRadius: 2, background: c, border: "1px solid var(--widget-surface)" }} />
                         ))}
-                        <span style={{ fontSize: "0.42rem", color: "rgba(240,240,240,0.22)", fontFamily: "var(--font-space-mono), monospace" }}>More</span>
+                        <span style={{ fontSize: "0.42rem", color: "var(--widget-faint)", fontFamily: "var(--font-space-mono), monospace" }}>More</span>
                     </div>
                 </div>
             </div>
@@ -534,7 +949,6 @@ function VisitorWidget({ style }: { style?: React.CSSProperties }) {
     const [count, setCount] = useState<number | null>(null);
 
     useEffect(() => {
-        // counterapi.dev — free, no signup, auto-creates on first hit
         fetch("https://api.counterapi.dev/v1/swadhin-portfolio-sr/views/up")
             .then(r => r.json())
             .then(d => setCount(d.count ?? d.value ?? null))
@@ -542,88 +956,126 @@ function VisitorWidget({ style }: { style?: React.CSSProperties }) {
     }, []);
 
     return (
-        <Widget style={{ padding: "12px 16px", ...style }}>
-            <p style={{ fontSize: "0.55rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "rgba(240,240,240,0.35)", marginBottom: 6 }}>Visitors</p>
+        <Widget style={{ padding: "12px 16px", ...style, minWidth: 170 }}>
+            <p style={{ fontSize: "0.55rem", letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--widget-subtle)", marginBottom: 6 }}>Visitors</p>
             <motion.p
                 key={count}
                 initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
-                style={{ fontSize: "1.6rem", fontWeight: 700, color: "rgba(240,240,240,0.9)", lineHeight: 1 }}
+                style={{ fontSize: "1.6rem", fontWeight: 700, color: "var(--widget-bright)", lineHeight: 1 }}
             >
                 {count !== null ? count.toLocaleString() : "—"}
             </motion.p>
-            <p style={{ fontSize: "0.5rem", color: "rgba(240,240,240,0.3)", marginTop: 4 }}>total visits</p>
+            <p style={{ fontSize: "0.5rem", color: "var(--widget-faint)", marginTop: 4 }}>total visits</p>
         </Widget>
     );
 }
 
 function DesktopWidgets() {
+    const [viewportWidth, setViewportWidth] = useState(1200);
+
+    useEffect(() => {
+        const updateWidth = () => setViewportWidth(window.innerWidth);
+        updateWidth();
+        window.addEventListener('resize', updateWidth);
+        return () => window.removeEventListener('resize', updateWidth);
+    }, []);
+
+    const rightColumnX = Math.max(viewportWidth - 240, 500);
+    const bottomLeftX = Math.min(Math.max(viewportWidth / 2 - 320, 150), viewportWidth - 520);
+    const githubX = Math.min(Math.max(viewportWidth / 2 - 80, 360), viewportWidth - 520);
+
     return (
-        <>
+        <div className="desktop-widgets">
             {/* LEFT COLUMN */}
-            <div style={{ position: "fixed", top: 40, left: 12, width: 192, zIndex: 5, display: "flex", flexDirection: "column", gap: 8, pointerEvents: "none" }}>
+            <DraggableWidget
+                initialPosition={{ x: 20, y: 50 }}
+                storageKey="widget-quote-position"
+            >
                 <QuoteWidget />
+            </DraggableWidget>
+            <DraggableWidget
+                initialPosition={{ x: 20, y: 200 }}
+                storageKey="widget-links-position"
+            >
                 <LinksWidget />
-            </div>
-            <div style={{ position: "fixed", bottom: 92, left: 12, width: 192, zIndex: 5, pointerEvents: "none" }}>
+            </DraggableWidget>
+            <DraggableWidget
+                initialPosition={{ x: 20, y: 400 }}
+                storageKey="widget-music-position"
+            >
                 <MusicWidget />
-            </div>
+            </DraggableWidget>
 
             {/* RIGHT COLUMN */}
-            <div style={{ position: "fixed", top: 40, right: 12, width: 210, zIndex: 5, display: "flex", flexDirection: "column", gap: 8, pointerEvents: "none" }}>
+            <DraggableWidget
+                initialPosition={{ x: rightColumnX, y: 50 }}
+                storageKey="widget-status-position"
+            >
                 <StatusWidget />
+            </DraggableWidget>
+            <DraggableWidget
+                initialPosition={{ x: rightColumnX, y: 220 }}
+                storageKey="widget-calendar-position"
+            >
                 <CalendarWidget />
-            </div>
+            </DraggableWidget>
 
             {/* BOTTOM CENTER — visitor + github grid */}
-            <div
-                style={{
-                    position: "fixed",
-                    bottom: 102,
-                    left: "50%",
-                    transform: "translateX(-50%)",
-                    zIndex: 4,
-                    width: "min(94vw, 700px)",
-                    display: "flex",
-                    flexWrap: "wrap",
-                    gap: 10,
-                    alignItems: "stretch",
-                    justifyContent: "center",
-                    pointerEvents: "none",
-                }}
+            <DraggableWidget
+                initialPosition={{ x: bottomLeftX, y: Math.max(viewportWidth > 800 ? 390 : 500, 390) }}
+                storageKey="widget-visitor-position"
             >
-                <VisitorWidget style={{ flex: "0 0 170px" }} />
-                <GithubGrid style={{ flex: "1 1 420px", minWidth: 260 }} />
-            </div>
-        </>
+                <VisitorWidget />
+            </DraggableWidget>
+            <DraggableWidget
+                initialPosition={{ x: githubX, y: Math.max(viewportWidth > 800 ? 465 : 600, 465) }}
+                storageKey="widget-github-position"
+            >
+                <GithubGrid />
+            </DraggableWidget>
+        </div>
     );
 }
 
 /* ══════════════════════════════════════════╗
    WINDOW CONTENTS
 ╚══════════════════════════════════════════ */
+const PROFILE_AVATAR = "/profile.jpeg";
+
 function HeroContent({ onNavigate }: { onNavigate: (id: string) => void }) {
     return (
-        <div style={{ padding: "28px 32px" }}>
-            <p className="label" style={{ marginBottom: 14 }}>{"// swadhin raha — portfolio"}</p>
-            <motion.h1 initial={{ y: 30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.55, ease: [0.33, 1, 0.68, 1] }}
-                className="heading-xl" style={{ marginBottom: 12 }}>Full Stack<br />Developer</motion.h1>
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.18 }}
-                style={{ color: "var(--fg-muted)", fontFamily: "var(--font-space-mono), monospace", fontSize: "0.75rem", lineHeight: 1.75, marginBottom: 22, maxWidth: 420 }}>
-                Building modern web applications with <b style={{ color: "var(--fg)" }}>Next.js</b>, <b style={{ color: "var(--fg)" }}>React</b>, and <b style={{ color: "var(--fg)" }}>TypeScript</b>.
+        <div className="hero-content">
+            <p className="label hero-kicker">{"// swadhin raha — portfolio"}</p>
+            <motion.h1 initial={{ y: 24, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 0.55, ease: [0.33, 1, 0.68, 1] }}
+                className="hero-name">Swadhin<br />Raha</motion.h1>
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }} className="hero-role">
+                Software Engineer — React, Next.js, TypeScript & systems
             </motion.p>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} style={{ display: "flex", flexWrap: "wrap", gap: 10, marginBottom: 22 }}>
-                <button className="btn-solid" onClick={() => onNavigate("projects")}>View Projects</button>
-                <button className="btn-ghost" onClick={() => onNavigate("contact")}>Contact Me</button>
+            <div className="hero-rule" />
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.22 }} className="hero-description">
+                I build thoughtful products and reliable systems from Berhampur, Odisha. My work lives at the intersection of sharp interfaces, fast APIs, and infrastructure that stays out of the way.
+            </motion.p>
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="hero-actions">
+                <button className="btn-solid" onClick={() => onNavigate("projects")}>View Projects <ExternalLink size={12} /></button>
+                <button className="btn-ghost" onClick={() => onNavigate("contact")}>Contact Me <Mail size={12} /></button>
             </motion.div>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} style={{ display: "flex", gap: 8 }}>
-                <a href="https://github.com/SWADHIN300" target="_blank" rel="noopener noreferrer" className="social-icon"><Github size={15} /></a>
-                <a href="https://x.com/swadhin_ra35911" target="_blank" rel="noopener noreferrer" className="social-icon"><Twitter size={15} /></a>
-            </motion.div>
+            <div className="hero-profile">
+                <Image src={PROFILE_AVATAR} alt="Swadhin Raha" width={42} height={42} className="hero-avatar" />
+                <div>
+                    <p className="hero-handle">SWADHIN300</p>
+                    <p className="hero-location">Berhampur · Odisha · 20</p>
+                </div>
+                <div className="hero-socials">
+                    <a href="https://github.com/SWADHIN300" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><Github size={17} /></a>
+                    <a href="https://x.com/swadhin_ra35911" target="_blank" rel="noopener noreferrer" aria-label="X"><Twitter size={17} /></a>
+                    <a href="mailto:swadhinraha81@gmail.com" aria-label="Email"><Mail size={17} /></a>
+                </div>
+            </div>
         </div>
     );
 }
 
-const TWITTER_AVATAR = "https://pbs.twimg.com/profile_images/2013510532079267840/cmT_YB7t_400x400.jpg";
+const TWITTER_AVATAR = PROFILE_AVATAR;
 
 function AboutContent() {
     const stats = [
@@ -637,7 +1089,6 @@ function AboutContent() {
         <div style={{ padding: "24px 28px" }}>
             <SectionHead label="// 01" title="About" />
 
-            {/* Profile header */}
             <motion.div
                 className="mini-card"
                 initial={{ opacity: 0, y: 10 }}
@@ -645,7 +1096,6 @@ function AboutContent() {
                 transition={{ duration: 0.4 }}
                 style={{ marginBottom: 10, display: "flex", gap: 20, alignItems: "flex-start" }}
             >
-                {/* Avatar */}
                 <div style={{ position: "relative", flexShrink: 0 }}>
                     <Image
                         src={TWITTER_AVATAR}
@@ -656,16 +1106,15 @@ function AboutContent() {
                         style={{
                             borderRadius: 16,
                             objectFit: "cover",
-                            border: "2px solid rgba(255,255,255,0.15)",
-                            boxShadow: "0 8px 24px rgba(0,0,0,0.5)",
+                            border: "2px solid var(--widget-border)",
+                            boxShadow: "var(--hero-shadow)",
                             display: "block",
                         }}
                         onError={(e) => {
-                            e.currentTarget.src = "/avatar.png";
+                            e.currentTarget.src = PROFILE_AVATAR;
                             e.currentTarget.onerror = null;
                         }}
                     />
-                    {/* Online indicator */}
                     <span style={{
                         position: "absolute",
                         bottom: 6,
@@ -673,13 +1122,12 @@ function AboutContent() {
                         width: 10,
                         height: 10,
                         borderRadius: "50%",
-                        background: "#28c840",
-                        border: "2px solid rgba(18,18,18,0.95)",
-                        boxShadow: "0 0 6px #28c840",
+                        background: "var(--status-green)",
+                        border: "2px solid var(--card)",
+                        boxShadow: "0 0 6px var(--status-green)",
                     }} />
                 </div>
 
-                {/* Name & role */}
                 <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{
                         fontFamily: "system-ui, sans-serif",
@@ -697,7 +1145,7 @@ function AboutContent() {
                         letterSpacing: "0.2em",
                         textTransform: "uppercase",
                         marginBottom: 10,
-                    }}>Sr. Full Stack · Next.js · TypeScript</p>
+                    }}>Software Engineer · Next.js · TypeScript</p>
                     <div style={{ display: "flex", gap: 6 }}>
                         <a href="https://github.com/SWADHIN300" target="_blank" rel="noopener noreferrer" className="social-icon">
                             <Github size={12} />
@@ -712,7 +1160,6 @@ function AboutContent() {
                 </div>
             </motion.div>
 
-            {/* Bio */}
             <motion.div
                 className="mini-card"
                 initial={{ opacity: 0, y: 10 }}
@@ -720,15 +1167,14 @@ function AboutContent() {
                 transition={{ duration: 0.4, delay: 0.08 }}
                 style={{ marginBottom: 10 }}
             >
-                <p className="label" style={{ marginBottom: 6 }}>{"// bio"}</p>
+                <p className="label" style={{ marginBottom: 6 }}>{ "// bio" }</p>
                 <p style={{ color: "var(--fg-muted)", fontFamily: "var(--font-space-mono), monospace", fontSize: "0.73rem", lineHeight: 1.85 }}>
-                    I&apos;m a Full Stack Developer passionate about building modern, scalable web applications.
-                    With expertise in both frontend and backend technologies, I create seamless user experiences
-                    backed by robust infrastructure — clean code, performance-first, and user-centric design.
+                    I&apos;m a Software Engineer passionate about building scalable, maintainable systems.
+                    With expertise across the full stack, I create robust backend architectures,
+                    performant frontend experiences, and reliable infrastructure — clean code, performance-first, and user-centric design.
                 </p>
             </motion.div>
 
-            {/* Stats grid */}
             <motion.div
                 className="mini-card"
                 initial={{ opacity: 0, y: 10 }}
@@ -757,8 +1203,8 @@ function AboutContent() {
 
 function ExperienceContent() {
     const exp = [
-        { period: "2023 — Present", role: "Full Stack Developer", company: "Freelance", desc: "Building modern web applications with Next.js, React and TypeScript." },
-        { period: "2022 — 2023", role: "Frontend Developer", company: "Personal Projects", desc: "Developed and deployed multiple React-based projects focusing on performance." },
+        { period: "2023 — Present", role: "Software Engineer", company: "Freelance", desc: "Building scalable web applications with Next.js, React and TypeScript." },
+        { period: "2022 — 2023", role: "Frontend Engineer", company: "Personal Projects", desc: "Developed and deployed multiple React-based projects focusing on performance." },
     ];
     return (
         <div style={{ padding: "24px 28px" }}>
@@ -777,24 +1223,67 @@ function ExperienceContent() {
 }
 
 function ProjectsContent() {
+    const [extraProjects, setExtraProjects] = useState<Project[]>(() => {
+        try {
+            return JSON.parse(localStorage.getItem("portfolio_projects") ?? "[]");
+        } catch {
+            return [];
+        }
+    });
+
+    useEffect(() => {
+        const handleStorageChange = () => {
+            try {
+                setExtraProjects(JSON.parse(localStorage.getItem("portfolio_projects") ?? "[]"));
+            } catch {
+                setExtraProjects([]);
+            }
+        };
+        window.addEventListener("storage", handleStorageChange);
+        return () => window.removeEventListener("storage", handleStorageChange);
+    }, []);
+
+    const allProjects = [...defaultProjects, ...extraProjects];
+
     return (
         <div style={{ padding: "24px 28px" }}>
             <SectionHead label="// 02" title="Projects" />
-            {defaultProjects.map((p, i) => (
-                <motion.div key={p.title} className="mini-card" style={{ marginBottom: 10 }}
+            {allProjects.map((p, i) => (
+                <motion.div key={p.title + i} className="mini-card" style={{ marginBottom: 14 }}
                     initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 7 }}>
-                        <p style={{ fontFamily: "var(--font-space-mono), monospace", fontWeight: 700, color: "var(--fg)", fontSize: "0.82rem", textTransform: "uppercase" }}>
-                            {String(i + 1).padStart(2, "0")}. {p.title}
-                        </p>
-                        <div style={{ display: "flex", gap: 5 }}>
-                            {p.liveUrl && <a href={p.liveUrl} target="_blank" rel="noopener noreferrer" className="social-icon"><ExternalLink size={11} /></a>}
-                            <a href={p.githubUrl} target="_blank" rel="noopener noreferrer" className="social-icon"><Github size={11} /></a>
+                    <div style={{ display: "flex", gap: 16, marginBottom: 12, alignItems: "flex-start" }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8, flexWrap: "wrap" }}>
+                                <span style={{ fontFamily: "var(--font-space-mono), monospace", fontWeight: 700, color: "var(--fg-muted)", fontSize: "0.7rem" }}>
+                                    {String(i + 1).padStart(2, "0")}.
+                                </span>
+                                <h3 style={{ fontFamily: "var(--font-space-mono), monospace", fontWeight: 700, color: "var(--fg)", fontSize: "0.85rem", textTransform: "uppercase", margin: 0 }}>
+                                    {p.title}
+                                </h3>
+                            </div>
+                            <p style={{ color: "var(--fg-muted)", fontFamily: "var(--font-space-mono), monospace", fontSize: "0.7rem", lineHeight: 1.7, marginBottom: 10 }}>{p.description}</p>
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                                {p.tech.map(t => <span key={t} className="badge">{t}</span>)}
+                            </div>
+                        </div>
+                        <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                            {p.liveUrl && (
+                                <a href={p.liveUrl} target="_blank" rel="noopener noreferrer" className="social-icon" title="Live Demo">
+                                    <ExternalLink size={13} />
+                                </a>
+                            )}
+                            <a href={p.githubUrl} target="_blank" rel="noopener noreferrer" className="social-icon" title="Source Code">
+                                <Github size={13} />
+                            </a>
                         </div>
                     </div>
-                    <p style={{ color: "var(--fg-muted)", fontFamily: "var(--font-space-mono), monospace", fontSize: "0.7rem", lineHeight: 1.65, marginBottom: 9 }}>{p.description}</p>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
-                        {p.tech.map(t => <span key={t} className="badge">{t}</span>)}
+                    <div className={`project-preview project-preview-${i % 4}`} role="img" aria-label={`${p.title} project preview`}>
+                        <div className="project-preview-top"><span>{p.title.toUpperCase()}</span><span>● LIVE BUILD</span></div>
+                        <div className="project-preview-body">
+                            <div className="project-preview-sidebar"><span /><span /><span /><span /></div>
+                            <div className="project-preview-chart"><i /><i /><i /><i /><i /><i /><i /><i /></div>
+                            <div className="project-preview-panel"><span /><span /><span /></div>
+                        </div>
                     </div>
                 </motion.div>
             ))}
@@ -827,14 +1316,36 @@ function BlogsContent() {
 }
 
 function SkillsContent() {
+    const [extraSkills, setExtraSkills] = useState<Array<{name: string, iconKey: string, url: string}>>(() => {
+        try {
+            return JSON.parse(localStorage.getItem("portfolio_skills") ?? "[]");
+        } catch {
+            return [];
+        }
+    });
+
+    useEffect(() => {
+        const handleStorageChange = () => {
+            try {
+                setExtraSkills(JSON.parse(localStorage.getItem("portfolio_skills") ?? "[]"));
+            } catch {
+                setExtraSkills([]);
+            }
+        };
+        window.addEventListener("storage", handleStorageChange);
+        return () => window.removeEventListener("storage", handleStorageChange);
+    }, []);
+
+    const allSkills = [...defaultSkills.map(s => ({ name: s.name, iconKey: "Braces", url: s.url })), ...extraSkills];
+
     return (
         <div style={{ padding: "24px 28px" }}>
             <SectionHead label="// 03" title="Skills" />
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-                {defaultSkills.map((s, i) => {
-                    const Icon = s.icon;
+                {allSkills.map((s, i) => {
+                    const Icon = iconMap[s.iconKey] || Braces;
                     return (
-                        <motion.a key={s.name} href={s.url} target="_blank" rel="noopener noreferrer"
+                        <motion.a key={s.name + i} href={s.url} target="_blank" rel="noopener noreferrer"
                             className="skill-pill" initial={{ opacity: 0, scale: 0.88 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.02, type: "spring", stiffness: 300, damping: 20 }}>
                             <Icon size={11} />{s.name}
                         </motion.a>
@@ -848,7 +1359,7 @@ function SkillsContent() {
 function TerminalContent() {
     const [lines, setLines] = useState([
         "swadhin@portfolio ~ % whoami",
-        "  Swadhin Raha — Full Stack Developer",
+        "  Swadhin Raha — Software Engineer",
         "",
         "swadhin@portfolio ~ % skills",
         "  Next.js · React · TypeScript · Node.js · TailwindCSS",
@@ -870,7 +1381,7 @@ function TerminalContent() {
         if (c === "help") out = ["  Available: whoami, skills, contact, clear, date, ls"];
         else if (c === "date") out = [`  ${new Date().toLocaleString()}`];
         else if (c === "clear") { setLines(["swadhin@portfolio ~ % _"]); return; }
-        else if (c === "whoami") out = ["  Swadhin Raha — Full Stack Developer"];
+        else if (c === "whoami") out = ["  Swadhin Raha — Software Engineer"];
         else if (c === "skills") out = ["  Next.js · React · TypeScript · Node.js · TailwindCSS", "  PostgreSQL · MongoDB · Prisma · Docker · Git"];
         else if (c === "contact") out = ["  📧 swadhinraha81@gmail.com", "  🐙 github.com/SWADHIN300", "  🐦 x.com/swadhin_ra35911"];
         else if (c === "ls") out = ["  about/  experience/  projects/  blogs/  skills/  contact/  notes/  uses/"];
@@ -884,14 +1395,14 @@ function TerminalContent() {
     useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [lines]);
 
     return (
-        <div style={{ padding: "16px 20px", background: "rgba(0,0,0,0.7)", fontFamily: "var(--font-space-mono), monospace", fontSize: "0.73rem", minHeight: 300 }}>
+        <div style={{ padding: "16px 20px", background: "var(--terminal-bg)", fontFamily: "var(--font-space-mono), monospace", fontSize: "0.73rem", minHeight: 300 }}>
             {lines.map((l, i) => (
-                <div key={i} style={{ color: l.startsWith("swadhin@") ? "#28c840" : "rgba(240,240,240,0.8)", lineHeight: 1.7, whiteSpace: "pre" }}>{l}</div>
+                <div key={i} style={{ color: l.startsWith("swadhin@") ? "var(--prompt)" : "var(--terminal-text)", lineHeight: 1.7, whiteSpace: "pre" }}>{l}</div>
             ))}
             <div ref={bottomRef} />
             <input autoFocus value={input} onChange={e => setInput(e.target.value)}
                 onKeyDown={e => { if (e.key === "Enter" && input.trim()) { handleCommand(input); setInput(""); } }}
-                style={{ background: "transparent", border: "none", outline: "none", color: "#28c840", fontFamily: "var(--font-space-mono), monospace", fontSize: "0.73rem", width: "100%", marginTop: 2 }}
+                style={{ background: "transparent", border: "none", outline: "none", color: "var(--prompt)", fontFamily: "var(--font-space-mono), monospace", fontSize: "0.73rem", width: "100%", marginTop: 2 }}
                 placeholder="type a command..." />
         </div>
     );
@@ -950,16 +1461,18 @@ function ContactContent() {
         e.preventDefault();
         setStatus("sending");
         try {
-            const res = await fetch("https://formsubmit.co/ajax/swadhinraha81@gmail.com", {
+            const res = await fetch("/api/contact", {
                 method: "POST",
-                headers: { "Content-Type": "application/json", Accept: "application/json" },
-                body: JSON.stringify({ name: form.name, email: form.email, message: form.message }),
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ fullName: form.name, email: form.email, message: form.message }),
             });
             const data = await res.json();
-            if (data.success === "true" || data.success === true) {
+            if (data.success) {
                 setStatus("success"); setForm({ name: "", email: "", message: "" });
                 setTimeout(() => setStatus("idle"), 5000);
-            } else throw new Error("failed");
+            } else {
+                throw new Error(data.error || "failed");
+            }
         } catch {
             setErrMsg("Failed — email me directly: swadhinraha81@gmail.com");
             setStatus("error");
@@ -977,13 +1490,13 @@ function ContactContent() {
             <AnimatePresence>
                 {status === "success" && (
                     <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mini-card" style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 10 }}>
-                        <CheckCircle size={13} color="#28c840" />
+                        <CheckCircle size={13} color="var(--status-green)" />
                         <span style={{ fontFamily: "var(--font-space-mono), monospace", fontSize: "0.68rem", color: "var(--fg)" }}>Sent! I&apos;ll get back to you soon.</span>
                     </motion.div>
                 )}
                 {status === "error" && (
-                    <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mini-card" style={{ display: "flex", gap: 8, alignItems: "flex-start", marginBottom: 10, borderColor: "rgba(255,95,87,0.4)" }}>
-                        <AlertCircle size={13} color="#ff5f57" style={{ flexShrink: 0, marginTop: 1 }} />
+                    <motion.div initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="mini-card" style={{ display: "flex", gap: 8, alignItems: "flex-start", marginBottom: 10, borderColor: "var(--danger-border)", background: "var(--danger-bg)" }}>
+                        <AlertCircle size={13} color="var(--destructive)" style={{ flexShrink: 0, marginTop: 1 }} />
                         <span style={{ fontFamily: "var(--font-space-mono), monospace", fontSize: "0.66rem", color: "var(--fg)" }}>{errMsg}</span>
                     </motion.div>
                 )}
@@ -1016,14 +1529,13 @@ function ContactContent() {
    DOCK WITH macOS MAGNIFICATION
 ╚══════════════════════════════════════════ */
 const RESUME_URL = "/resume.pdf";
-const X_PROFILE_HANDLE = "swadhin_ra35911";
-const X_PROFILE_AVATAR = `https://unavatar.io/x/${X_PROFILE_HANDLE}`;
+const X_PROFILE_AVATAR = PROFILE_AVATAR;
 
 const DOCK_ITEMS = [
-    { id: "hero",       label: "Home",       Icon: Home,         isLink: false, href: "" },
+    { id: "hero",       label: "Home",       Icon: Home,         isLink: false, href: "", maximizable: false },
     { id: "about",      label: "About",      Icon: User,         isLink: false, href: "" },
     { id: "experience", label: "Experience", Icon: Briefcase,    isLink: false, href: "" },
-    { id: "projects",   label: "Projects",   Icon: FolderOpen,   isLink: false, href: "" },
+    { id: "projects",   label: "Projects",   Icon: FolderOpen,   isLink: false, href: "", maximizable: false },
     { id: "blogs",      label: "Blogs",      Icon: BookOpen,     isLink: false, href: "" },
     { id: "contact",    label: "Contact",    Icon: Mail,         isLink: false, href: "" },
     { id: "resume",     label: "Resume",     Icon: FileDown,     isLink: true,  href: RESUME_URL },
@@ -1037,7 +1549,6 @@ const SOCIAL_DOCK = [
     { id: "xtwitter", label: "X",      Icon: XIcon,   href: "https://x.com/swadhin_ra35911" },
 ];
 
-/* About hover preview card (shown above the About dock button) */
 function AboutHoverCard() {
     return (
         <motion.div
@@ -1052,26 +1563,26 @@ function AboutHoverCard() {
                 transform: "translateX(-50%)",
                 width: "min(760px, 80vw)",
                 minHeight: 470,
-                background: "linear-gradient(180deg, rgba(16,16,16,0.98), rgba(10,10,10,0.98))",
-                backgroundImage: "radial-gradient(circle at top, rgba(255,255,255,0.05), transparent 42%)",
-                border: "1px solid rgba(255,255,255,0.11)",
+                background: "var(--preview-card-bg)",
+                backgroundImage: "var(--preview-card-glow)",
+                border: "1px solid var(--preview-card-border)",
                 borderRadius: 18,
                 padding: "46px 56px 34px",
                 zIndex: 9999,
                 pointerEvents: "none",
-                boxShadow: "0 26px 70px rgba(0,0,0,0.78), inset 0 1px 0 rgba(255,255,255,0.04)",
+                boxShadow: "var(--preview-card-shadow)",
                 fontFamily: "var(--font-space-mono), monospace",
                 overflow: "hidden",
             }}
         >
-            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(255,255,255,0.02), transparent 42%)", pointerEvents: "none" }} />
+            <div style={{ position: "absolute", inset: 0, background: "var(--preview-card-sheen)", pointerEvents: "none" }} />
 
             <h2
                 style={{
                     position: "relative",
                     fontSize: "clamp(3.6rem, 7vw, 5.4rem)",
                     fontWeight: 800,
-                    color: "#f3f3f3",
+                    color: "var(--foreground)",
                     lineHeight: 0.92,
                     letterSpacing: "-0.06em",
                     marginBottom: 26,
@@ -1086,23 +1597,23 @@ function AboutHoverCard() {
                     position: "relative",
                     fontSize: "0.92rem",
                     letterSpacing: "0.22em",
-                    color: "rgba(240,240,240,0.36)",
+                    color: "var(--widget-subtle)",
                     textTransform: "uppercase",
                     marginBottom: 40,
                     fontWeight: 700,
                 }}
             >
-                Sr. Full Stack / Next.js / TypeScript Engineer
+                Software Engineer / Next.js / TypeScript
             </p>
 
-            <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", marginBottom: 34 }} />
+            <div style={{ borderTop: "1px solid var(--widget-surface)", marginBottom: 34 }} />
 
             <p
                 style={{
                     position: "relative",
                     maxWidth: 610,
                     fontSize: "1.02rem",
-                    color: "rgba(240,240,240,0.62)",
+                    color: "var(--widget-muted)",
                     lineHeight: 1.95,
                     marginBottom: 110,
                     fontFamily: "system-ui, sans-serif",
@@ -1113,7 +1624,7 @@ function AboutHoverCard() {
                 Crafting interfaces, APIs, and polished developer experiences with a strong focus on clean systems and memorable interactions.
             </p>
 
-            <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", marginBottom: 26 }} />
+            <div style={{ borderTop: "1px solid var(--widget-surface)", marginBottom: 26 }} />
 
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 18 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 16, minWidth: 0 }}>
@@ -1126,15 +1637,15 @@ function AboutHoverCard() {
                         style={{
                             borderRadius: 14,
                             objectFit: "cover",
-                            border: "1px solid rgba(255,255,255,0.16)",
-                            boxShadow: "0 10px 20px rgba(0,0,0,0.26)",
+                            border: "1px solid var(--widget-border)",
+                            boxShadow: "0 10px 20px rgba(0, 0, 0, 0.16)",
                             flexShrink: 0,
                         }}
                         onError={(e) => {
                             const image = e.currentTarget;
                             if (image.dataset.fallback !== "1") {
                                 image.dataset.fallback = "1";
-                                image.src = "/avatar.png";
+                                image.src = PROFILE_AVATAR;
                                 return;
                             }
                             image.style.display = "none";
@@ -1145,7 +1656,7 @@ function AboutHoverCard() {
                             style={{
                                 fontSize: "1.02rem",
                                 fontWeight: 700,
-                                color: "rgba(240,240,240,0.7)",
+                                color: "var(--widget-muted)",
                                 textTransform: "uppercase",
                                 letterSpacing: "0.12em",
                                 marginBottom: 4,
@@ -1153,7 +1664,7 @@ function AboutHoverCard() {
                         >
                             SWADHIN300
                         </p>
-                        <p style={{ fontSize: "0.88rem", color: "rgba(240,240,240,0.28)", letterSpacing: "0.03em" }}>
+                        <p style={{ fontSize: "0.88rem", color: "var(--widget-faint)", letterSpacing: "0.03em" }}>
                             Berhampur · Odisha · 20
                         </p>
                     </div>
@@ -1164,7 +1675,7 @@ function AboutHoverCard() {
                         href="https://x.com/swadhin_ra35911"
                         target="_blank"
                         rel="noopener noreferrer"
-                        style={{ color: "rgba(240,240,240,0.5)", pointerEvents: "auto" }}
+                        style={{ color: "var(--widget-muted)", pointerEvents: "auto" }}
                     >
                         <Twitter size={20} />
                     </a>
@@ -1172,13 +1683,13 @@ function AboutHoverCard() {
                         href="https://github.com/SWADHIN300"
                         target="_blank"
                         rel="noopener noreferrer"
-                        style={{ color: "rgba(240,240,240,0.5)", pointerEvents: "auto" }}
+                        style={{ color: "var(--widget-muted)", pointerEvents: "auto" }}
                     >
                         <Github size={20} />
                     </a>
                     <a
                         href="#notes"
-                        style={{ color: "rgba(240,240,240,0.5)", pointerEvents: "auto" }}
+                        style={{ color: "var(--widget-muted)", pointerEvents: "auto" }}
                     >
                         <BookOpen size={20} />
                     </a>
@@ -1188,11 +1699,12 @@ function AboutHoverCard() {
     );
 }
 
-function DockItem({ mouseX, id, label, Icon, isOpen, isLink, href, onToggle }: {
+function DockItem({ mouseX, id, label, Icon, isOpen, isLink, href, onToggle, maximizable = true }: {
     mouseX: ReturnType<typeof useMotionValue<number>>;
     id: string; label: string; Icon: React.ElementType;
     isOpen?: boolean; isLink?: boolean; href?: string;
     onToggle?: (id: string) => void;
+    maximizable?: boolean;
 }) {
     const ref = useRef<HTMLDivElement>(null);
     const [hovered, setHovered] = useState(false);
@@ -1212,20 +1724,18 @@ function DockItem({ mouseX, id, label, Icon, isOpen, isLink, href, onToggle }: {
             onHoverStart={() => setHovered(true)}
             onHoverEnd={() => setHovered(false)}
         >
-            {/* About hover card */}
             <AnimatePresence>
                 {id === "about" && hovered && <AboutHoverCard />}
             </AnimatePresence>
 
-            {/* Label tooltip shown for all items */}
             <AnimatePresence>
                 {hovered && id !== "about" && (
                     <motion.div
                         initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 2 }}
                         style={{
                             position: "absolute", bottom: "calc(100% + 10px)",
-                            background: "rgba(20,20,20,0.92)", border: "1px solid rgba(255,255,255,0.12)",
-                            borderRadius: 6, padding: "4px 10px", fontSize: "0.6rem", color: "rgba(240,240,240,0.8)",
+                            background: "var(--tooltip-bg)", border: "1px solid var(--tooltip-border)",
+                            borderRadius: 6, padding: "4px 10px", fontSize: "0.6rem", color: "var(--widget-strong)",
                             fontFamily: "var(--font-space-mono), monospace", whiteSpace: "nowrap", letterSpacing: "0.08em",
                             textTransform: "uppercase", zIndex: 9999, pointerEvents: "none",
                         }}
@@ -1236,6 +1746,7 @@ function DockItem({ mouseX, id, label, Icon, isOpen, isLink, href, onToggle }: {
             </AnimatePresence>
 
             <motion.div
+                className="dock-icon"
                 style={{
                     width: 50,
                     height: 50,
@@ -1243,23 +1754,21 @@ function DockItem({ mouseX, id, label, Icon, isOpen, isLink, href, onToggle }: {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    background: isOpen
-                        ? "linear-gradient(145deg, rgba(255,255,255,0.24), rgba(255,255,255,0.08))"
-                        : "linear-gradient(145deg, rgba(255,255,255,0.15), rgba(255,255,255,0.03))",
-                    border: `1px solid ${isOpen ? "rgba(255,255,255,0.4)" : "rgba(255,255,255,0.17)"}`,
-                    color: "rgba(240,240,240,0.88)",
+                    background: isOpen ? "var(--dock-icon-bg-active)" : "var(--dock-icon-bg)",
+                    border: isOpen ? "1px solid var(--dock-icon-border-active)" : "1px solid var(--dock-icon-border)",
+                    color: "var(--dock-icon-color)",
                 }}
                 animate={{
                     boxShadow: isOpen
                         ? [
-                            "0 10px 22px rgba(0,0,0,0.36), 0 0 0 rgba(57,211,83,0.2)",
-                            "0 13px 30px rgba(0,0,0,0.42), 0 0 18px rgba(57,211,83,0.32)",
-                            "0 10px 22px rgba(0,0,0,0.36), 0 0 0 rgba(57,211,83,0.2)",
+                            "0 10px 22px rgba(0, 0, 0, 0.16), 0 0 0 var(--status-green-soft)",
+                            "var(--dock-icon-shadow-active)",
+                            "0 10px 22px rgba(0, 0, 0, 0.16), 0 0 0 var(--status-green-soft)",
                         ]
                         : [
-                            "0 8px 18px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.12)",
-                            "0 12px 24px rgba(0,0,0,0.38), inset 0 1px 0 rgba(255,255,255,0.2)",
-                            "0 8px 18px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.12)",
+                            "var(--dock-icon-shadow)",
+                            "0 12px 24px rgba(0, 0, 0, 0.18), inset 0 1px 0 color-mix(in oklab, var(--foreground) 20%, transparent)",
+                            "var(--dock-icon-shadow)",
                         ],
                 }}
                 transition={{ duration: isOpen ? 2.1 : 3, repeat: Infinity, ease: "easeInOut" }}
@@ -1268,7 +1777,7 @@ function DockItem({ mouseX, id, label, Icon, isOpen, isLink, href, onToggle }: {
                 <Icon size={22} />
             </motion.div>
             <motion.div
-                style={{ width: 4, height: 4, borderRadius: "50%", background: "rgba(240,240,240,0.85)" }}
+                style={{ width: 4, height: 4, borderRadius: "50%", background: "var(--dock-dot)" }}
                 animate={isOpen ? { opacity: [0.35, 1, 0.35], scale: [1, 1.35, 1] } : { opacity: 0, scale: 1 }}
                 transition={isOpen ? { duration: 1.8, repeat: Infinity, ease: "easeInOut" } : { duration: 0.2 }}
             />
@@ -1297,6 +1806,7 @@ function SocialDockItem({ mouseX, label, Icon, href }: {
         <a href={href} target="_blank" rel="noopener noreferrer" title={label}>
             <motion.div ref={ref} style={{ scale, y, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, cursor: "pointer" }}>
                 <motion.div
+                    className="dock-icon"
                     style={{
                         width: 50,
                         height: 50,
@@ -1304,11 +1814,11 @@ function SocialDockItem({ mouseX, label, Icon, href }: {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        background: "linear-gradient(145deg, rgba(255,255,255,0.12), rgba(255,255,255,0.03))",
-                        border: "1px solid rgba(255,255,255,0.18)",
-                        color: "rgba(240,240,240,0.9)",
+                        background: "var(--dock-icon-bg)",
+                        border: "1px solid var(--dock-icon-border)",
+                        color: "var(--dock-icon-color)",
                     }}
-                    whileHover={{ boxShadow: "0 14px 28px rgba(0,0,0,0.4), 0 0 14px rgba(255,255,255,0.2)" }}
+                    whileHover={{ boxShadow: "var(--dock-icon-shadow-hover)" }}
                     whileTap={{ scale: 0.9 }}
                 >
                     <Icon size={22} />
@@ -1323,9 +1833,9 @@ function Dock({ open, onToggle }: { open: Set<string>; onToggle: (id: string) =>
     const mouseX = useMotionValue(Infinity);
     return (
         <div className="dock" onMouseMove={e => mouseX.set(e.clientX)} onMouseLeave={() => mouseX.set(Infinity)}>
-            {DOCK_ITEMS.map(({ id, label, Icon, isLink, href }) => (
+            {DOCK_ITEMS.map(({ id, label, Icon, isLink, href, maximizable }) => (
                 <DockItem key={id} mouseX={mouseX} id={id} label={label} Icon={Icon}
-                    isOpen={open.has(id)} isLink={isLink} href={href} onToggle={onToggle} />
+                    isOpen={open.has(id)} isLink={isLink} href={href} onToggle={onToggle} maximizable={maximizable} />
             ))}
             <div className="dock-sep" />
             {SOCIAL_DOCK.map(({ id, label, Icon, href }) => (
@@ -1345,7 +1855,7 @@ const WINDOW_TITLES: Record<string, string> = {
 };
 
 const OFFSETS: Record<string, { top: string; left: string }> = {
-    hero:       { top: "8%",  left: "22%" },
+    hero:       { top: "1%",  left: "27%" },
     about:      { top: "10%", left: "26%" },
     experience: { top: "7%",  left: "30%" },
     projects:   { top: "9%",  left: "24%" },
@@ -1365,19 +1875,21 @@ export default function DesktopPage() {
     const [open, setOpen]         = useState<Set<string>>(new Set(["hero"]));
     const [zMap, setZMap]         = useState<Record<string, number>>({ hero: 10 });
     const [zCounter, setZCounter] = useState(11);
+    const [maximized, setMaximized] = useState<Set<string>>(new Set());
+    const [positions, setPositions] = useState<Record<string, { x: number; y: number }>>({});
 
     useEffect(() => {
         setUiReady(true);
         const saved = localStorage.getItem("theme");
         const dark = saved !== "light";
         setIsDark(dark);
-        document.documentElement.classList.toggle("light", !dark);
+        document.documentElement.classList.toggle("dark", dark);
     }, []);
 
     const toggleTheme = () => {
         const next = !isDark;
         setIsDark(next);
-        document.documentElement.classList.toggle("light", !next);
+        document.documentElement.classList.toggle("dark", next);
         localStorage.setItem("theme", next ? "dark" : "light");
     };
 
@@ -1398,51 +1910,161 @@ export default function DesktopPage() {
 
     const closeWindow = (id: string) => {
         setOpen(prev => { const n = new Set(prev); n.delete(id); return n; });
+        setMaximized(prev => { const n = new Set(prev); n.delete(id); return n; });
+    };
+
+    const maximizeWindow = (id: string) => {
+        setMaximized(prev => { const n = new Set(prev); n.add(id); return n; });
+        focusWindow(id);
+    };
+
+    const minimizeWindow = (id: string) => {
+        setMaximized(prev => { const n = new Set(prev); n.delete(id); return n; });
+    };
+
+    // Content and Footer helpers
+    const getContent = (id: string) => {
+        switch (id) {
+            case "hero":
+                return <HeroContent onNavigate={wid => { setOpen(prev => { const n = new Set(prev); n.add(wid); return n; }); focusWindow(wid); }} />;
+            case "about":
+                return <AboutContent />;
+            case "experience":
+                return <ExperienceContent />;
+            case "projects":
+                return <ProjectsContent />;
+            case "blogs":
+                return <BlogsContent />;
+            case "contact":
+                return <ContactContent />;
+            case "terminal":
+                return <TerminalContent />;
+            case "uses":
+                return <UsesContent />;
+            case "notes":
+                return <NotesContent />;
+            default:
+                return null;
+        }
+    };
+
+    const getFooter = (id: string) => {
+        switch (id) {
+            case "about":
+                return (
+                    <WindowFooter
+                        left={<MacButton variant="ghost" size="sm" onClick={() => window.open("https://github.com/SWADHIN300", "_blank")}><Github size={10} /> GitHub</MacButton>}
+                        center={<MacButton variant="ghost" size="sm" onClick={() => window.open("https://x.com/swadhin_ra35911", "_blank")}><Twitter size={10} /> X</MacButton>}
+                        right={<MacButton variant="primary" size="sm" onClick={() => { setOpen(prev => { const n = new Set(prev); n.add("contact"); return n; }); focusWindow("contact"); }}><Mail size={10} /> Contact Me</MacButton>}
+                    />
+                );
+            case "experience":
+                return (
+                    <WindowFooter
+                        left={<MacButton variant="ghost" size="sm" onClick={() => { setOpen(prev => { const n = new Set(prev); n.add("projects"); return n; }); focusWindow("projects"); }}><FolderOpen size={10} /> View Projects</MacButton>}
+                        right={<MacButton variant="primary" size="sm" onClick={() => { setOpen(prev => { const n = new Set(prev); n.add("contact"); return n; }); focusWindow("contact"); }}><Mail size={10} /> Hire Me</MacButton>}
+                    />
+                );
+            case "projects":
+                return (
+                    <WindowFooter
+                        left={<MacButton variant="ghost" size="sm" onClick={() => { setOpen(prev => { const n = new Set(prev); n.add("about"); return n; }); focusWindow("about"); }}><User size={10} /> About Me</MacButton>}
+                        right={<MacButton variant="primary" size="sm" onClick={() => { setOpen(prev => { const n = new Set(prev); n.add("contact"); return n; }); focusWindow("contact"); }}><Mail size={10} /> Get in Touch</MacButton>}
+                    />
+                );
+            case "blogs":
+                return (
+                    <WindowFooter
+                        left={<MacButton variant="ghost" size="sm" onClick={() => { setOpen(prev => { const n = new Set(prev); n.add("notes"); return n; }); focusWindow("notes"); }}><BookOpen size={10} /> Notes</MacButton>}
+                        right={<MacButton variant="primary" size="sm" onClick={() => { setOpen(prev => { const n = new Set(prev); n.add("contact"); return n; }); focusWindow("contact"); }}><Mail size={10} /> Contact</MacButton>}
+                    />
+                );
+            case "contact":
+                return (
+                    <WindowFooter
+                        left={<MacButton variant="ghost" size="sm" onClick={() => window.open("mailto:swadhinraha81@gmail.com")}><Mail size={10} /> Email Direct</MacButton>}
+                        right={<MacButton variant="primary" size="sm" onClick={() => { setOpen(prev => { const n = new Set(prev); n.add("about"); return n; }); focusWindow("about"); }}><User size={10} /> About Me</MacButton>}
+                    />
+                );
+            case "terminal":
+                return (
+                    <WindowFooter
+                        left={<MacButton variant="ghost" size="sm" onClick={() => { setOpen(prev => { const n = new Set(prev); n.add("uses"); return n; }); focusWindow("uses"); }}><Wrench size={10} /> Uses</MacButton>}
+                        center={<MacButton variant="ghost" size="sm" onClick={() => { setOpen(prev => { const n = new Set(prev); n.add("notes"); return n; }); focusWindow("notes"); }}><BookOpen size={10} /> Notes</MacButton>}
+                        right={<MacButton variant="primary" size="sm" onClick={() => { setOpen(prev => { const n = new Set(prev); n.add("contact"); return n; }); focusWindow("contact"); }}><Mail size={10} /> Contact</MacButton>}
+                    />
+                );
+            case "uses":
+                return (
+                    <WindowFooter
+                        left={<MacButton variant="ghost" size="sm" onClick={() => { setOpen(prev => { const n = new Set(prev); n.add("terminal"); return n; }); focusWindow("terminal"); }}><TerminalIcon size={10} /> Terminal</MacButton>}
+                        right={<MacButton variant="primary" size="sm" onClick={() => { setOpen(prev => { const n = new Set(prev); n.add("contact"); return n; }); focusWindow("contact"); }}><Mail size={10} /> Contact</MacButton>}
+                    />
+                );
+            case "notes":
+                return (
+                    <WindowFooter
+                        left={<MacButton variant="ghost" size="sm" onClick={() => { setOpen(prev => { const n = new Set(prev); n.add("blogs"); return n; }); focusWindow("blogs"); }}><BookOpen size={10} /> Blogs</MacButton>}
+                        right={<MacButton variant="primary" size="sm" onClick={() => { setOpen(prev => { const n = new Set(prev); n.add("contact"); return n; }); focusWindow("contact"); }}><Mail size={10} /> Contact</MacButton>}
+                    />
+                );
+            default:
+                return null;
+        }
     };
 
     if (!uiReady) {
         return (
-            <div style={{ minHeight: "100dvh", paddingTop: 28, paddingBottom: 100, background: "#000000" }} />
+            <div style={{ minHeight: "100dvh", paddingTop: 28, paddingBottom: 100, background: "var(--background)" }} />
         );
     }
 
     return (
-        <div style={{ minHeight: "100dvh", paddingTop: 28, paddingBottom: 100, background: "#000000" }}>
+        <div style={{ minHeight: "100dvh", paddingTop: 28, paddingBottom: 100, background: "var(--background)" }}>
             <StatusBar isDark={isDark} onToggle={toggleTheme} />
 
-            {/* Background Widgets — always visible */}
+            <main className="portfolio-main">
             <DesktopWidgets />
 
-            {/* Floating Windows Layer */}
-            <div style={{ position: "fixed", inset: 0, top: 28, bottom: 80, pointerEvents: "none", zIndex: 30 }}>
+            <div className="window-stage" style={{ position: "fixed", inset: 0, top: 28, bottom: 80, pointerEvents: "none", zIndex: 30 }}>
                 <AnimatePresence>
                     {Array.from(open).map(id => {
                         const off = OFFSETS[id] ?? { top: "10%", left: "22%" };
                         const isWide = ["projects", "uses", "skills"].includes(id);
+                        const isMax = maximized.has(id);
+                        const pos = positions[id];
                         return (
                             <div key={id}
-                                style={{ position: "absolute", top: off.top, left: off.left, zIndex: zMap[id] ?? 10, pointerEvents: "auto" }}
+                                style={{
+                                    position: isMax ? "fixed" : "absolute",
+                                    top: isMax ? 32 : off.top,
+                                    left: isMax ? 0 : off.left,
+                                    zIndex: zMap[id] ?? 10,
+                                    pointerEvents: "auto"
+                                }}
                                 onClick={() => focusWindow(id)}
                             >
-                                <Window id={id} title={WINDOW_TITLES[id] ?? id} onClose={() => closeWindow(id)}
-                                    width={isWide ? "min(820px, 86vw)" : "min(580px, 80vw)"}>
-                                    {id === "hero"       && <HeroContent onNavigate={wid => { setOpen(prev => { const n = new Set(prev); n.add(wid); return n; }); focusWindow(wid); }} />}
-                                    {id === "about"      && <AboutContent />}
-                                    {id === "experience" && <ExperienceContent />}
-                                    {id === "projects"   && <ProjectsContent />}
-                                    {id === "blogs"      && <BlogsContent />}
-                                    {id === "contact"    && <ContactContent />}
-                                    {id === "terminal"   && <TerminalContent />}
-                                    {id === "uses"       && <UsesContent />}
-                                    {id === "notes"      && <NotesContent />}
+                                <Window
+                                    id={id}
+                                    title={WINDOW_TITLES[id] ?? id}
+                                    onClose={() => closeWindow(id)}
+                                    onFocus={() => focusWindow(id)}
+                                    onMaximize={() => maximizeWindow(id)}
+                                    onMinimize={() => minimizeWindow(id)}
+                                    isMaximized={isMax}
+                                    width={isWide ? "min(820px, 86vw)" : "min(580px, 80vw)"}
+                                    maximizable={!["hero", "projects", "resume"].includes(id)}
+                                    footer={getFooter(id)}
+                                >
+                                    {getContent(id)}
                                 </Window>
                             </div>
                         );
                     })}
                 </AnimatePresence>
             </div>
+            </main>
 
-            {/* macOS Dock */}
             <Dock open={open} onToggle={toggleWindow} />
         </div>
     );

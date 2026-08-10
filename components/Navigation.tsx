@@ -21,13 +21,13 @@ export default function Navigation() {
         const saved = localStorage.getItem("theme");
         const dark = saved !== "light";
         setIsDark(dark);
-        document.documentElement.classList.toggle("light", !dark);
+        document.documentElement.classList.toggle("dark", dark);
     }, []);
 
     const toggleTheme = () => {
         const next = !isDark;
         setIsDark(next);
-        document.documentElement.classList.toggle("light", !next);
+        document.documentElement.classList.toggle("dark", next);
         localStorage.setItem("theme", next ? "dark" : "light");
     };
 
