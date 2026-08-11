@@ -4,7 +4,7 @@ import {
     useState, useEffect, useRef, useCallback
 } from "react";
 import {
-    motion, AnimatePresence,
+    Motion, AnimatePresence,
     useMotionValue, useTransform, useSpring,
 } from "framer-motion";
 import {
