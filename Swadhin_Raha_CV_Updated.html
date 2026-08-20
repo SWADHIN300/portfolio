@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Swadhin Raha - CV</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 14mm 15mm;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: #101418;
+      background: #ffffff;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 10.2pt;
+      line-height: 1.28;
+    }
+
+    a {
+      color: #0f5f9f;
+      text-decoration: none;
+    }
+
+    .page {
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      padding-bottom: 7px;
+      border-bottom: 1.2px solid #1f2933;
+    }
+
+    h1 {
+      margin: 0 0 4px;
+      font-size: 23pt;
+      line-height: 1;
+      letter-spacing: 0;
+      font-weight: 700;
+    }
+
+    .contact,
+    .links {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 4px 10px;
+      color: #26323d;
+      font-size: 9.5pt;
+    }
+
+    section {
+      margin-top: 10px;
+    }
+
+    h2 {
+      margin: 0 0 5px;
+      padding-bottom: 2px;
+      border-bottom: 0.8px solid #9aa5b1;
+      color: #111827;
+      font-size: 10.5pt;
+      line-height: 1.1;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .summary {
+      margin: 0;
+      color: #1f2933;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: baseline;
+    }
+
+    .title {
+      font-weight: 700;
+    }
+
+    .meta {
+      color: #374151;
+      font-size: 9.3pt;
+      white-space: nowrap;
+    }
+
+    .subline {
+      color: #1f2933;
+      margin-top: 1px;
+    }
+
+    .project {
+      margin-top: 7px;
+      break-inside: avoid;
+    }
+
+    .project:first-of-type {
+      margin-top: 0;
+    }
+
+    .project-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+    }
+
+    .project-links {
+      font-weight: 400;
+      font-size: 9pt;
+      white-space: nowrap;
+    }
+
+    .tech {
+      color: #374151;
+      font-size: 9.2pt;
+      margin-top: 1px;
+    }
+
+    ul {
+      margin: 3px 0 0 17px;
+      padding: 0;
+    }
+
+    li {
+      margin: 2px 0;
+      padding-left: 1px;
+    }
+
+    .skills {
+      display: grid;
+      grid-template-columns: 118px 1fr;
+      gap: 3px 10px;
+    }
+
+    .skill-label {
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .activity-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3px 18px;
+      margin-top: 0;
+    }
+
+    @media print {
+      body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .page {
+        max-width: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header>
+      <h1>Swadhin Raha</h1>
+      <div class="contact">
+        <span>Odisha, India</span>
+        <span>|</span>
+        <span><a href="tel:+918018020200">+91 8018020200</a></span>
+        <span>|</span>
+        <span><a href="mailto:swadhinraha81@gmail.com">swadhinraha81@gmail.com</a></span>
+      </div>
+      <div class="links">
+        <a href="https://www.linkedin.com/in/swadhin-raha-27067226b/">LinkedIn</a>
+        <span>|</span>
+        <a href="https://github.com/SWADHIN300">GitHub</a>
+        <span>|</span>
+        <a href="https://swadhinraha.dev">Portfolio</a>
+      </div>
+    </header>
+
+    <section>
+      <h2>Profile</h2>
+      <p class="summary">
+        Computer Science student specializing in AI and ML, focused on full-stack products, real-time dashboards,
+        and Web3 applications. Comfortable building with Next.js, React, TypeScript, Node.js, PostgreSQL, Rust,
+        and Solana smart-contract tooling.
+      </p>
+    </section>
+
+    <section>
+      <h2>Education</h2>
+      <div class="row">
+        <div>
+          <div class="title">NIST University, Berhampur, Odisha</div>
+          <div class="subline">B.Tech in Computer Science &amp; Engineering (AI &amp; ML) - CGPA: 8.7</div>
+        </div>
+        <div class="meta">Aug 2024 - Present</div>
+      </div>
+      <div class="row" style="margin-top: 5px;">
+        <div>
+          <div class="title">OAV Sidheswar, Odisha</div>
+          <div class="subline">Class XII, Science - Percentage: 81.4%</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Projects</h2>
+
+      <article class="project">
+        <div class="project-title">
+          <div class="title">ApeX - Perpetual Futures DEX</div>
+          <div class="project-links">
+            <a href="https://github.com/SWADHIN300/ApeX">GitHub</a> |
+            <a href="https://ape-x-theta.vercel.app">Live Demo</a>
+          </div>
+        </div>
+        <div class="tech">React, TypeScript, Next.js, Node.js, Tailwind CSS, Rust, Anchor, PostgreSQL</div>
+        <ul>
+          <li>Built a Solana-based perpetual futures trading platform for leveraged BTC, ETH, and SOL positions.</li>
+          <li>Implemented trading primitives in Rust and Anchor, including order execution, position management, margin requirements, liquidation, and settlement.</li>
+          <li>Built a real-time trading interface with wallet connectivity, Pyth price feeds, candlestick charts, order management, and PostgreSQL-backed trade history.</li>
+        </ul>
+      </article>
+
+      <article class="project">
+        <div class="project-title">
+          <div class="title">Coin Tracking - Crypto Market Dashboard</div>
+          <div class="project-links">
+            <a href="https://github.com/SWADHIN300/coin-tracking">GitHub</a> |
+            <a href="https://coin-tracking-three.vercel.app/">Live Demo</a>
+          </div>
+        </div>
+        <div class="tech">Next.js, React, TypeScript, Tailwind CSS, CoinGecko API, Chart.js</div>
+        <ul>
+          <li>Built a responsive crypto tracking platform for real-time prices, market trends, and major assets such as BTC, ETH, and SOL.</li>
+          <li>Integrated the CoinGecko API for live prices, market capitalization, trading volume, and historical market data.</li>
+          <li>Designed dashboard views with search, charts, and coin statistics to make real-time and historical price movement easier to analyze.</li>
+        </ul>
+      </article>
+
+      <article class="project">
+        <div class="project-title">
+          <div class="title">HaX - Hackathon Discovery Platform</div>
+          <div class="project-links">GitHub | Live Demo</div>
+        </div>
+        <div class="tech">React, TypeScript, Node.js, Playwright, GitHub Actions, Tailwind CSS</div>
+        <ul>
+          <li>Built a hackathon discovery platform for finding, tracking, and exploring hackathons worldwide, with a focus on opportunities in India.</li>
+          <li>Developed a Node.js and Playwright scraping pipeline to collect listings from multiple sources, then normalize, classify, and deduplicate the data.</li>
+          <li>Automated daily updates and push notifications with GitHub Actions and ntfy.sh to alert users about newly discovered hackathons.</li>
+        </ul>
+      </article>
+    </section>
+
+    <section>
+      <h2>Technical Skills</h2>
+      <div class="skills">
+        <div class="skill-label">Languages</div>
+        <div>C, C++, JavaScript, TypeScript, SQL, Rust, Solidity</div>
+        <div class="skill-label">Frontend</div>
+        <div>Next.js, React.js, Tailwind CSS, shadcn/ui, Chart.js, responsive UI</div>
+        <div class="skill-label">Backend &amp; Data</div>
+        <div>Node.js, Express.js, PostgreSQL, REST APIs, WebSocket, API integration</div>
+        <div class="skill-label">Blockchain</div>
+        <div>Solana, Anchor, Ethereum, Web3, smart-contract integration</div>
+        <div class="skill-label">Core CS</div>
+        <div>Data Structures &amp; Algorithms, Operating Systems, OOP, debugging</div>
+        <div class="skill-label">Tools</div>
+        <div>Git, GitHub, Git Bash, VS Code, Vim, Postman, Docker, Playwright</div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Activities</h2>
+      <ul class="activity-list">
+        <li>Member, Cloud Computing Club, NIST University.</li>
+        <li>Avid reader; currently reading Harry Potter and the Philosopher's Stone.</li>
+      </ul>
+    </section>
+  </main>
+</body>
+</html>
