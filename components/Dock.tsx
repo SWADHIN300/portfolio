@@ -89,6 +89,7 @@ function DockItem({
             onKeyDown={handleKeyDown}
         >
             {children}
+            <span className="dock-label" role="tooltip">{label}</span>
         </motion.div>
     );
 }
