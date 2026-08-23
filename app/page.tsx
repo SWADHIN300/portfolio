@@ -1098,7 +1098,7 @@ function HeroContent({ onNavigate }: { onNavigate: (id: string) => void }) {
                 <Image src={PROFILE_AVATAR} alt="Swadhin Raha" width={42} height={42} className="hero-avatar" />
                 <div>
                     <p className="hero-handle">SWADHIN300</p>
-                    <p className="hero-location">Berhampur · Odisha · 20</p>
+                    <p className="hero-location">Berhampur · Odisha · 21</p>
                 </div>
                 <div className="hero-socials">
                     <a href="https://github.com/SWADHIN300" target="_blank" rel="noopener noreferrer" aria-label="GitHub"><Github size={17} /></a>
