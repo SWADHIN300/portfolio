@@ -1,7 +1,7 @@
 "use client";
 
 import {
-    useState, useEffect, useRef, useCallback, useMemo
+    useState, useEffect, useRef, useCallback
 } from "react";
 import {
     motion, AnimatePresence,
@@ -11,12 +11,12 @@ import {
     ExternalLink, Send, CheckCircle, AlertCircle, Loader, Briefcase,
     BookOpen, Terminal as TerminalIcon, Wrench, FileText, FileDown,
     X as XIcon, Music, Link as LinkIcon, Maximize2, Minimize2, HelpCircle,
-    Pause, Play,
+    Pause, Play, CircleUser, Code2, ScrollText, SquarePen,
 } from "lucide-react";
 import { defaultProjects, defaultSkills, iconMap, type Project } from "@/lib/data";
 import { Braces } from "lucide-react";
 import Image from "next/image";
-import MacDock, { type MacDockItem } from "@/components/MacDock";
+import RbDock, { type DockItemData } from "@/components/Dock";
 
 /* ══════════════════════════════════════════╗
    HELPERS
@@ -1580,16 +1580,15 @@ const RESUME_URL = "/resume.pdf";
 const X_PROFILE_AVATAR = PROFILE_AVATAR;
 
 const DOCK_ITEMS = [
-    { id: "hero",       label: "Home",         Icon: Home,         isLink: false, href: "", maximizable: false },
-    { id: "about",      label: "Profile",      Icon: User,         isLink: false, href: "" },
+    { id: "about",      label: "Profile",      Icon: CircleUser,   isLink: false, href: "" },
     { id: "experience", label: "Work",         Icon: Briefcase,    isLink: false, href: "" },
-    { id: "projects",   label: "Code",         Icon: FolderOpen,   isLink: false, href: "", maximizable: false },
+    { id: "projects",   label: "Code",         Icon: Code2,        isLink: false, href: "", maximizable: false },
     { id: "blogs",      label: "Reading",      Icon: BookOpen,     isLink: false, href: "" },
     { id: "contact",    label: "Contact",      Icon: Mail,         isLink: false, href: "" },
-    { id: "resume",     label: "Certificates", Icon: FileDown,     isLink: true,  href: RESUME_URL },
+    { id: "resume",     label: "Certificates", Icon: ScrollText,   isLink: true,  href: RESUME_URL },
     { id: "terminal",   label: "Terminal",     Icon: TerminalIcon, isLink: false, href: "" },
-    { id: "uses",       label: "Skills",       Icon: Wrench,       isLink: false, href: "" },
-    { id: "notes",      label: "Blog",         Icon: FileText,     isLink: false, href: "" },
+    { id: "uses",       label: "Skills",       Icon: Cpu,          isLink: false, href: "" },
+    { id: "notes",      label: "Blog",         Icon: SquarePen,    isLink: false, href: "" },
 ];
 
 const SOCIAL_DOCK = [
@@ -1597,39 +1596,31 @@ const SOCIAL_DOCK = [
     { id: "xtwitter", label: "X",      Icon: XIcon,   href: "https://x.com/swadhin_ra35911" },
 ];
 
-function Dock({ activeId, onToggle, isDark, onThemeChange }: {
-    activeId?: string;
+function Dock({ onToggle }: {
     onToggle: (id: string) => void;
-    isDark: boolean;
-    onThemeChange: (dark: boolean) => void;
 }) {
-    const items: MacDockItem[] = [
-        ...DOCK_ITEMS.map((d) => ({
-            id: d.id,
-            label: d.label,
-            icon: d.Icon,
-            href: d.isLink ? d.href : undefined,
-            external: d.isLink,
-        })),
-        ...SOCIAL_DOCK.map((s) => ({
-            id: s.id,
-            label: s.label,
-            icon: s.Icon,
-            href: s.href,
-            external: true,
-        })),
-        { id: "theme", label: isDark ? "Light Mode" : "Dark Mode", icon: isDark ? Sun : Moon },
+    const items: DockItemData[] = [
+        ...DOCK_ITEMS.map((d) => {
+            const Ic = d.Icon;
+            return {
+                icon: <Ic size={20} strokeWidth={1.75} />,
+                label: d.label,
+                onClick: () =>
+                    d.isLink ? window.open(d.href, "_blank", "noopener,noreferrer") : onToggle(d.id),
+            };
+        }),
+        { isDivider: true, label: "", icon: null },
+        ...SOCIAL_DOCK.map((s) => {
+            const Ic = s.Icon;
+            return {
+                icon: <Ic size={20} strokeWidth={1.75} />,
+                label: s.label,
+                onClick: () => window.open(s.href, "_blank", "noopener,noreferrer"),
+            };
+        }),
     ];
 
-    const handleSelect = (id: string) => {
-        if (id === "theme") {
-            onThemeChange(!isDark);
-            return;
-        }
-        onToggle(id);
-    };
-
-    return <MacDock items={items} activeId={activeId} onSelect={handleSelect} />;
+    return <RbDock items={items} panelHeight={58} baseItemSize={40} magnification={62} distance={170} />;
 }
 
 /* ══════════════════════════════════════════╗
@@ -1664,22 +1655,6 @@ export default function DesktopPage() {
     const [zCounter, setZCounter] = useState(11);
     const [maximized, setMaximized] = useState<Set<string>>(new Set());
     const [positions, setPositions] = useState<Record<string, { x: number; y: number }>>({});
-
-    // The active dock item = the open window currently on top (highest z-index).
-    const activeId = useMemo(() => {
-        const dockIds = new Set(DOCK_ITEMS.map((d) => d.id));
-        let best: string | undefined;
-        let bestZ = -Infinity;
-        open.forEach((id) => {
-            if (!dockIds.has(id)) return;
-            const z = zMap[id] ?? 0;
-            if (z >= bestZ) {
-                bestZ = z;
-                best = id;
-            }
-        });
-        return best;
-    }, [open, zMap]);
 
     useEffect(() => {
         setUiReady(true);
@@ -1872,7 +1847,7 @@ export default function DesktopPage() {
             </div>
             </main>
 
-            <Dock activeId={activeId} onToggle={toggleWindow} isDark={isDark} onThemeChange={applyTheme} />
+            <Dock onToggle={toggleWindow} />
         </div>
     );
 }
