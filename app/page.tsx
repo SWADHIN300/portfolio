@@ -1,11 +1,10 @@
 "use client";
 
 import {
-    useState, useEffect, useRef, useCallback
+    useState, useEffect, useRef, useCallback, useMemo
 } from "react";
 import {
     motion, AnimatePresence,
-    useMotionValue, useTransform, useSpring,
 } from "framer-motion";
 import {
     Sun, Moon, Home, User, FolderOpen, Cpu, Mail, Github, Twitter,
@@ -17,6 +16,7 @@ import {
 import { defaultProjects, defaultSkills, iconMap, type Project } from "@/lib/data";
 import { Braces } from "lucide-react";
 import Image from "next/image";
+import MacDock, { type MacDockItem } from "@/components/MacDock";
 
 /* ══════════════════════════════════════════╗
    HELPERS
@@ -208,47 +208,65 @@ function Window({ id, title, children, onClose, onFocus, width = "min(640px, 92v
 }) {
     const [position, setPosition] = useState({ x: 0, y: 0 });
     const [isDragging, setIsDragging] = useState(false);
-    const dragOffset = useRef({ x: 0, y: 0 });
-    const initialPos = useRef({ x: 0, y: 0 });
+    const dragStart = useRef({ pointerX: 0, pointerY: 0, x: 0, y: 0 });
+    const dragBounds = useRef({ minX: 0, maxX: 0, minY: 0, maxY: 0 });
     const windowRef = useRef<HTMLDivElement>(null);
     const [showTooltips, setShowTooltips] = useState(false);
 
-    const handleMouseDown = (e: React.MouseEvent) => {
-        if (isMaximized) return;
-        if ((e.target as HTMLElement).closest('.window-btn')) return;
-        setIsDragging(true);
+    const handleDragStart = (e: React.PointerEvent<HTMLDivElement>) => {
+        if (isMaximized || (e.target as HTMLElement).closest(".window-btn")) return;
+
         const rect = windowRef.current?.getBoundingClientRect();
-        if (rect) {
-            dragOffset.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
-            initialPos.current = { x: rect.left, y: rect.top };
-        }
+        if (!rect) return;
+
+        dragStart.current = {
+            pointerX: e.clientX,
+            pointerY: e.clientY,
+            x: position.x,
+            y: position.y,
+        };
+
+        // Keep the full card visible where possible, above the floating dock.
+        const minX = position.x + 8 - rect.left;
+        const maxX = position.x + window.innerWidth - 8 - rect.right;
+        const minY = position.y + 38 - rect.top;
+        const availableMaxY = position.y + window.innerHeight - 92 - rect.bottom;
+        dragBounds.current = {
+            minX,
+            maxX: Math.max(minX, maxX),
+            minY,
+            maxY: Math.max(minY, availableMaxY),
+        };
+
+        e.currentTarget.setPointerCapture(e.pointerId);
+        setIsDragging(true);
         setShowTooltips(false);
         onFocus?.();
     };
 
     useEffect(() => {
-        const handleMouseMove = (e: MouseEvent) => {
-            if (!isDragging || isMaximized) return;
-            const newX = e.clientX - dragOffset.current.x;
-            const newY = e.clientY - dragOffset.current.y;
-            // Keep window within viewport
-            const maxX = window.innerWidth - (windowRef.current?.offsetWidth || 0);
-            const maxY = window.innerHeight - (windowRef.current?.offsetHeight || 0) - 100; // Account for dock
+        if (!isDragging) return;
+
+        const handlePointerMove = (e: PointerEvent) => {
+            const nextX = dragStart.current.x + e.clientX - dragStart.current.pointerX;
+            const nextY = dragStart.current.y + e.clientY - dragStart.current.pointerY;
+            const { minX, maxX, minY, maxY } = dragBounds.current;
             setPosition({
-                x: Math.max(0, Math.min(newX, maxX)),
-                y: Math.max(0, Math.min(newY, maxY))
+                x: Math.max(minX, Math.min(nextX, maxX)),
+                y: Math.max(minY, Math.min(nextY, maxY)),
             });
         };
 
-        const handleMouseUp = () => setIsDragging(false);
-
-        window.addEventListener('mousemove', handleMouseMove);
-        window.addEventListener('mouseup', handleMouseUp);
+        const handlePointerEnd = () => setIsDragging(false);
+        window.addEventListener("pointermove", handlePointerMove);
+        window.addEventListener("pointerup", handlePointerEnd);
+        window.addEventListener("pointercancel", handlePointerEnd);
         return () => {
-            window.removeEventListener('mousemove', handleMouseMove);
-            window.removeEventListener('mouseup', handleMouseUp);
+            window.removeEventListener("pointermove", handlePointerMove);
+            window.removeEventListener("pointerup", handlePointerEnd);
+            window.removeEventListener("pointercancel", handlePointerEnd);
         };
-    }, [isDragging, isMaximized]);
+    }, [isDragging]);
 
     const handleDoubleClick = () => {
         if (!isMaximized) onMaximize?.();
@@ -277,16 +295,19 @@ function Window({ id, title, children, onClose, onFocus, width = "min(640px, 92v
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.82, opacity: 0, y: 24 }}
             transition={{ type: "spring", stiffness: 340, damping: 30 }}
-            className="glass-window"
-            style={{ ...windowStyle, transform: isMaximized ? 'none' : (isDragging ? 'none' : undefined) }}
-            onMouseDown={handleMouseDown}
-            onDoubleClick={handleDoubleClick}
+            className={`glass-window ${isDragging ? "is-dragging" : ""}`}
+            style={{
+                ...windowStyle,
+                translate: isMaximized ? "none" : `${position.x}px ${position.y}px`,
+            }}
             onMouseEnter={() => setShowTooltips(true)}
             onMouseLeave={() => setShowTooltips(false)}
         >
             <div
                 className="glass-window-titlebar"
-                style={{ cursor: isMaximized ? 'default' : 'move', userSelect: 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px' }}
+                onPointerDown={handleDragStart}
+                onDoubleClick={handleDoubleClick}
+                style={{ cursor: isMaximized ? 'default' : (isDragging ? 'grabbing' : 'grab'), touchAction: 'none', userSelect: 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px' }}
             >
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                     <button
@@ -1248,45 +1269,47 @@ function ProjectsContent() {
     return (
         <div style={{ padding: "24px 28px" }}>
             <SectionHead label="// 02" title="Projects" />
-            {allProjects.map((p, i) => (
-                <motion.div key={p.title + i} className="mini-card" style={{ marginBottom: 14 }}
-                    initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.07 }}>
-                    <div style={{ display: "flex", gap: 16, marginBottom: 12, alignItems: "flex-start" }}>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8, flexWrap: "wrap" }}>
-                                <span style={{ fontFamily: "var(--font-space-mono), monospace", fontWeight: 700, color: "var(--fg-muted)", fontSize: "0.7rem" }}>
-                                    {String(i + 1).padStart(2, "0")}.
-                                </span>
-                                <h3 style={{ fontFamily: "var(--font-space-mono), monospace", fontWeight: 700, color: "var(--fg)", fontSize: "0.85rem", textTransform: "uppercase", margin: 0 }}>
-                                    {p.title}
-                                </h3>
+            <div className="pcards">
+                {allProjects.map((p, i) => (
+                    <motion.article
+                        key={p.title + i}
+                        className="pcard"
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.07, duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
+                    >
+                        <div className="pcard-body">
+                            <div className="pcard-head">
+                                <span className="pcard-idx">{String(i + 1).padStart(2, "0")}</span>
+                                <h3 className="pcard-title">{p.title}</h3>
+                                {p.liveUrl && (
+                                    <span className="pcard-live">
+                                        <span className="status-dot" /> Live
+                                    </span>
+                                )}
                             </div>
-                            <p style={{ color: "var(--fg-muted)", fontFamily: "var(--font-space-mono), monospace", fontSize: "0.7rem", lineHeight: 1.7, marginBottom: 10 }}>{p.description}</p>
-                            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+
+                            <p className="pcard-desc">{p.description}</p>
+
+                            <div className="pcard-tags">
                                 {p.tech.map(t => <span key={t} className="badge">{t}</span>)}
                             </div>
-                        </div>
-                        <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
-                            {p.liveUrl && (
-                                <a href={p.liveUrl} target="_blank" rel="noopener noreferrer" className="social-icon" title="Live Demo">
-                                    <ExternalLink size={13} />
+
+                            <div className="pcard-actions">
+                                {p.liveUrl && (
+                                    <a href={p.liveUrl} target="_blank" rel="noopener noreferrer"
+                                        className="pcard-btn pcard-btn-primary">
+                                        <ExternalLink size={11} /> Visit
+                                    </a>
+                                )}
+                                <a href={p.githubUrl} target="_blank" rel="noopener noreferrer" className="pcard-btn">
+                                    <Github size={11} /> Source
                                 </a>
-                            )}
-                            <a href={p.githubUrl} target="_blank" rel="noopener noreferrer" className="social-icon" title="Source Code">
-                                <Github size={13} />
-                            </a>
+                            </div>
                         </div>
-                    </div>
-                    <div className={`project-preview project-preview-${i % 4}`} role="img" aria-label={`${p.title} project preview`}>
-                        <div className="project-preview-top"><span>{p.title.toUpperCase()}</span><span>● LIVE BUILD</span></div>
-                        <div className="project-preview-body">
-                            <div className="project-preview-sidebar"><span /><span /><span /><span /></div>
-                            <div className="project-preview-chart"><i /><i /><i /><i /><i /><i /><i /><i /></div>
-                            <div className="project-preview-panel"><span /><span /><span /></div>
-                        </div>
-                    </div>
-                </motion.div>
-            ))}
+                    </motion.article>
+                ))}
+            </div>
         </div>
     );
 }
@@ -1549,300 +1572,39 @@ const SOCIAL_DOCK = [
     { id: "xtwitter", label: "X",      Icon: XIcon,   href: "https://x.com/swadhin_ra35911" },
 ];
 
-function AboutHoverCard() {
-    return (
-        <motion.div
-            initial={{ opacity: 0, y: 8, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 6, scale: 0.96 }}
-            transition={{ duration: 0.22, ease: "easeOut" }}
-            style={{
-                position: "absolute",
-                bottom: "calc(100% + 18px)",
-                left: "50%",
-                transform: "translateX(-50%)",
-                width: "min(760px, 80vw)",
-                minHeight: 470,
-                background: "var(--preview-card-bg)",
-                backgroundImage: "var(--preview-card-glow)",
-                border: "1px solid var(--preview-card-border)",
-                borderRadius: 18,
-                padding: "46px 56px 34px",
-                zIndex: 9999,
-                pointerEvents: "none",
-                boxShadow: "var(--preview-card-shadow)",
-                fontFamily: "var(--font-space-mono), monospace",
-                overflow: "hidden",
-            }}
-        >
-            <div style={{ position: "absolute", inset: 0, background: "var(--preview-card-sheen)", pointerEvents: "none" }} />
-
-            <h2
-                style={{
-                    position: "relative",
-                    fontSize: "clamp(3.6rem, 7vw, 5.4rem)",
-                    fontWeight: 800,
-                    color: "var(--foreground)",
-                    lineHeight: 0.92,
-                    letterSpacing: "-0.06em",
-                    marginBottom: 26,
-                    fontFamily: "system-ui, sans-serif",
-                }}
-            >
-                Swadhin<br />Raha
-            </h2>
-
-            <p
-                style={{
-                    position: "relative",
-                    fontSize: "0.92rem",
-                    letterSpacing: "0.22em",
-                    color: "var(--widget-subtle)",
-                    textTransform: "uppercase",
-                    marginBottom: 40,
-                    fontWeight: 700,
-                }}
-            >
-                Software Engineer / Next.js / TypeScript
-            </p>
-
-            <div style={{ borderTop: "1px solid var(--widget-surface)", marginBottom: 34 }} />
-
-            <p
-                style={{
-                    position: "relative",
-                    maxWidth: 610,
-                    fontSize: "1.02rem",
-                    color: "var(--widget-muted)",
-                    lineHeight: 1.95,
-                    marginBottom: 110,
-                    fontFamily: "system-ui, sans-serif",
-                    fontWeight: 500,
-                }}
-            >
-                Building modern web applications at the intersection of design, speed, and product thinking.
-                Crafting interfaces, APIs, and polished developer experiences with a strong focus on clean systems and memorable interactions.
-            </p>
-
-            <div style={{ borderTop: "1px solid var(--widget-surface)", marginBottom: 26 }} />
-
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 18 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 16, minWidth: 0 }}>
-                    <Image
-                        src={X_PROFILE_AVATAR}
-                        alt="Swadhin"
-                        width={54}
-                        height={54}
-                        unoptimized
-                        style={{
-                            borderRadius: 14,
-                            objectFit: "cover",
-                            border: "1px solid var(--widget-border)",
-                            boxShadow: "0 10px 20px rgba(0, 0, 0, 0.16)",
-                            flexShrink: 0,
-                        }}
-                        onError={(e) => {
-                            const image = e.currentTarget;
-                            if (image.dataset.fallback !== "1") {
-                                image.dataset.fallback = "1";
-                                image.src = PROFILE_AVATAR;
-                                return;
-                            }
-                            image.style.display = "none";
-                        }}
-                    />
-                    <div style={{ minWidth: 0 }}>
-                        <p
-                            style={{
-                                fontSize: "1.02rem",
-                                fontWeight: 700,
-                                color: "var(--widget-muted)",
-                                textTransform: "uppercase",
-                                letterSpacing: "0.12em",
-                                marginBottom: 4,
-                            }}
-                        >
-                            SWADHIN300
-                        </p>
-                        <p style={{ fontSize: "0.88rem", color: "var(--widget-faint)", letterSpacing: "0.03em" }}>
-                            Berhampur · Odisha · 20
-                        </p>
-                    </div>
-                </div>
-
-                <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
-                    <a
-                        href="https://x.com/swadhin_ra35911"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{ color: "var(--widget-muted)", pointerEvents: "auto" }}
-                    >
-                        <Twitter size={20} />
-                    </a>
-                    <a
-                        href="https://github.com/SWADHIN300"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{ color: "var(--widget-muted)", pointerEvents: "auto" }}
-                    >
-                        <Github size={20} />
-                    </a>
-                    <a
-                        href="#notes"
-                        style={{ color: "var(--widget-muted)", pointerEvents: "auto" }}
-                    >
-                        <BookOpen size={20} />
-                    </a>
-                </div>
-            </div>
-        </motion.div>
-    );
-}
-
-function DockItem({ mouseX, id, label, Icon, isOpen, isLink, href, onToggle, maximizable = true }: {
-    mouseX: ReturnType<typeof useMotionValue<number>>;
-    id: string; label: string; Icon: React.ElementType;
-    isOpen?: boolean; isLink?: boolean; href?: string;
-    onToggle?: (id: string) => void;
-    maximizable?: boolean;
+function Dock({ activeId, onToggle, isDark, onThemeChange }: {
+    activeId?: string;
+    onToggle: (id: string) => void;
+    isDark: boolean;
+    onThemeChange: (dark: boolean) => void;
 }) {
-    const ref = useRef<HTMLDivElement>(null);
-    const [hovered, setHovered] = useState(false);
-    const distance = useTransform(mouseX, v => {
-        const rect = ref.current?.getBoundingClientRect();
-        return rect ? v - rect.x - rect.width / 2 : Infinity;
-    });
-    const scaleVal = useTransform(distance, [-80, 0, 80], [1, 1.6, 1]);
-    const scale = useSpring(scaleVal, { mass: 0.08, stiffness: 200, damping: 14 });
-    const yVal = useTransform(distance, [-80, 0, 80], [0, -10, 0]);
-    const y = useSpring(yVal, { mass: 0.08, stiffness: 200, damping: 14 });
+    const items: MacDockItem[] = [
+        ...DOCK_ITEMS.map((d) => ({
+            id: d.id,
+            label: d.label,
+            icon: d.Icon,
+            href: d.isLink ? d.href : undefined,
+            external: d.isLink,
+        })),
+        ...SOCIAL_DOCK.map((s) => ({
+            id: s.id,
+            label: s.label,
+            icon: s.Icon,
+            href: s.href,
+            external: true,
+        })),
+        { id: "theme", label: isDark ? "Light Mode" : "Dark Mode", icon: isDark ? Sun : Moon },
+    ];
 
-    const inner = (
-        <motion.div
-            ref={ref}
-            style={{ scale, y, position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 4, cursor: "pointer" }}
-            onHoverStart={() => setHovered(true)}
-            onHoverEnd={() => setHovered(false)}
-        >
-            <AnimatePresence>
-                {id === "about" && hovered && <AboutHoverCard />}
-            </AnimatePresence>
+    const handleSelect = (id: string) => {
+        if (id === "theme") {
+            onThemeChange(!isDark);
+            return;
+        }
+        onToggle(id);
+    };
 
-            <AnimatePresence>
-                {hovered && id !== "about" && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 2 }}
-                        style={{
-                            position: "absolute", bottom: "calc(100% + 10px)",
-                            background: "var(--tooltip-bg)", border: "1px solid var(--tooltip-border)",
-                            borderRadius: 6, padding: "4px 10px", fontSize: "0.6rem", color: "var(--widget-strong)",
-                            fontFamily: "var(--font-space-mono), monospace", whiteSpace: "nowrap", letterSpacing: "0.08em",
-                            textTransform: "uppercase", zIndex: 9999, pointerEvents: "none",
-                        }}
-                    >
-                        {label}
-                    </motion.div>
-                )}
-            </AnimatePresence>
-
-            <motion.div
-                className="dock-icon"
-                style={{
-                    width: 50,
-                    height: 50,
-                    borderRadius: 14,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    background: isOpen ? "var(--dock-icon-bg-active)" : "var(--dock-icon-bg)",
-                    border: isOpen ? "1px solid var(--dock-icon-border-active)" : "1px solid var(--dock-icon-border)",
-                    color: "var(--dock-icon-color)",
-                }}
-                animate={{
-                    boxShadow: isOpen
-                        ? [
-                            "0 10px 22px rgba(0, 0, 0, 0.16), 0 0 0 var(--status-green-soft)",
-                            "var(--dock-icon-shadow-active)",
-                            "0 10px 22px rgba(0, 0, 0, 0.16), 0 0 0 var(--status-green-soft)",
-                        ]
-                        : [
-                            "var(--dock-icon-shadow)",
-                            "0 12px 24px rgba(0, 0, 0, 0.18), inset 0 1px 0 color-mix(in oklab, var(--foreground) 20%, transparent)",
-                            "var(--dock-icon-shadow)",
-                        ],
-                }}
-                transition={{ duration: isOpen ? 2.1 : 3, repeat: Infinity, ease: "easeInOut" }}
-                whileTap={{ scale: 0.9 }}
-            >
-                <Icon size={22} />
-            </motion.div>
-            <motion.div
-                style={{ width: 4, height: 4, borderRadius: "50%", background: "var(--dock-dot)" }}
-                animate={isOpen ? { opacity: [0.35, 1, 0.35], scale: [1, 1.35, 1] } : { opacity: 0, scale: 1 }}
-                transition={isOpen ? { duration: 1.8, repeat: Infinity, ease: "easeInOut" } : { duration: 0.2 }}
-            />
-        </motion.div>
-    );
-
-    if (isLink) return <a href={href} target="_blank" rel="noopener noreferrer" title={label}>{inner}</a>;
-    return <div onClick={() => onToggle?.(id)} title={label}>{inner}</div>;
-}
-
-function SocialDockItem({ mouseX, label, Icon, href }: {
-    mouseX: ReturnType<typeof useMotionValue<number>>;
-    label: string; Icon: React.ElementType; href: string;
-}) {
-    const ref = useRef<HTMLDivElement>(null);
-    const distance = useTransform(mouseX, v => {
-        const rect = ref.current?.getBoundingClientRect();
-        return rect ? v - rect.x - rect.width / 2 : Infinity;
-    });
-    const scaleVal = useTransform(distance, [-80, 0, 80], [1, 1.6, 1]);
-    const scale = useSpring(scaleVal, { mass: 0.08, stiffness: 200, damping: 14 });
-    const yVal = useTransform(distance, [-80, 0, 80], [0, -10, 0]);
-    const y = useSpring(yVal, { mass: 0.08, stiffness: 200, damping: 14 });
-
-    return (
-        <a href={href} target="_blank" rel="noopener noreferrer" title={label}>
-            <motion.div ref={ref} style={{ scale, y, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, cursor: "pointer" }}>
-                <motion.div
-                    className="dock-icon"
-                    style={{
-                        width: 50,
-                        height: 50,
-                        borderRadius: 14,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        background: "var(--dock-icon-bg)",
-                        border: "1px solid var(--dock-icon-border)",
-                        color: "var(--dock-icon-color)",
-                    }}
-                    whileHover={{ boxShadow: "var(--dock-icon-shadow-hover)" }}
-                    whileTap={{ scale: 0.9 }}
-                >
-                    <Icon size={22} />
-                </motion.div>
-                <div style={{ width: 4, height: 4, borderRadius: "50%", opacity: 0 }} />
-            </motion.div>
-        </a>
-    );
-}
-
-function Dock({ open, onToggle }: { open: Set<string>; onToggle: (id: string) => void }) {
-    const mouseX = useMotionValue(Infinity);
-    return (
-        <div className="dock" onMouseMove={e => mouseX.set(e.clientX)} onMouseLeave={() => mouseX.set(Infinity)}>
-            {DOCK_ITEMS.map(({ id, label, Icon, isLink, href, maximizable }) => (
-                <DockItem key={id} mouseX={mouseX} id={id} label={label} Icon={Icon}
-                    isOpen={open.has(id)} isLink={isLink} href={href} onToggle={onToggle} maximizable={maximizable} />
-            ))}
-            <div className="dock-sep" />
-            {SOCIAL_DOCK.map(({ id, label, Icon, href }) => (
-                <SocialDockItem key={id} mouseX={mouseX} label={label} Icon={Icon} href={href} />
-            ))}
-        </div>
-    );
+    return <MacDock items={items} activeId={activeId} onSelect={handleSelect} />;
 }
 
 /* ══════════════════════════════════════════╗
@@ -1878,6 +1640,22 @@ export default function DesktopPage() {
     const [maximized, setMaximized] = useState<Set<string>>(new Set());
     const [positions, setPositions] = useState<Record<string, { x: number; y: number }>>({});
 
+    // The active dock item = the open window currently on top (highest z-index).
+    const activeId = useMemo(() => {
+        const dockIds = new Set(DOCK_ITEMS.map((d) => d.id));
+        let best: string | undefined;
+        let bestZ = -Infinity;
+        open.forEach((id) => {
+            if (!dockIds.has(id)) return;
+            const z = zMap[id] ?? 0;
+            if (z >= bestZ) {
+                bestZ = z;
+                best = id;
+            }
+        });
+        return best;
+    }, [open, zMap]);
+
     useEffect(() => {
         setUiReady(true);
         const saved = localStorage.getItem("theme");
@@ -1886,12 +1664,13 @@ export default function DesktopPage() {
         document.documentElement.classList.toggle("dark", dark);
     }, []);
 
-    const toggleTheme = () => {
-        const next = !isDark;
-        setIsDark(next);
-        document.documentElement.classList.toggle("dark", next);
-        localStorage.setItem("theme", next ? "dark" : "light");
+    const applyTheme = (dark: boolean) => {
+        setIsDark(dark);
+        document.documentElement.classList.toggle("dark", dark);
+        localStorage.setItem("theme", dark ? "dark" : "light");
     };
+
+    const toggleTheme = () => applyTheme(!isDark);
 
     const focusWindow = (id: string) => {
         const z = zCounter;
@@ -2020,7 +1799,10 @@ export default function DesktopPage() {
     }
 
     return (
-        <div style={{ minHeight: "100dvh", paddingTop: 28, paddingBottom: 100, background: "var(--background)" }}>
+        <div className="desktop-boot" style={{ minHeight: "100dvh", paddingTop: 28, paddingBottom: 100, background: "var(--background)" }}>
+            <div className="boot-overlay" aria-hidden>
+                <span className="boot-mark">SR</span>
+            </div>
             <StatusBar isDark={isDark} onToggle={toggleTheme} />
 
             <main className="portfolio-main">
@@ -2065,7 +1847,7 @@ export default function DesktopPage() {
             </div>
             </main>
 
-            <Dock open={open} onToggle={toggleWindow} />
+            <Dock activeId={activeId} onToggle={toggleWindow} isDark={isDark} onThemeChange={applyTheme} />
         </div>
     );
 }
