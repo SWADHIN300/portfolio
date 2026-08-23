@@ -291,13 +291,19 @@ function Window({ id, title, children, onClose, onFocus, width = "min(640px, 92v
         <motion.div
             ref={windowRef}
             key={id}
-            initial={{ scale: 0.82, opacity: 0, y: 40 }}
+            initial={{ scale: 0.7, opacity: 0, y: 64 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.82, opacity: 0, y: 24 }}
-            transition={{ type: "spring", stiffness: 340, damping: 30 }}
+            exit={{ scale: 0.82, opacity: 0, y: 44 }}
+            transition={{
+                type: "spring",
+                stiffness: 320,
+                damping: 26,
+                opacity: { duration: 0.22 },
+            }}
             className={`glass-window ${isDragging ? "is-dragging" : ""}`}
             style={{
                 ...windowStyle,
+                transformOrigin: "bottom center",
                 translate: isMaximized ? "none" : `${position.x}px ${position.y}px`,
             }}
             onMouseEnter={() => setShowTooltips(true)}
@@ -341,7 +347,15 @@ function Window({ id, title, children, onClose, onFocus, width = "min(640px, 92v
                 <span style={{ fontFamily: "var(--font-space-mono), monospace", fontSize: "0.6rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--fg-muted)" }}>{title}</span>
                 <div style={{ width: 46 }} />
             </div>
-            <div className="glass-window-content" style={{ overflowY: "auto", flex: 1, minHeight: 0 }}>{children}</div>
+            <div className="glass-window-content" style={{ overflowY: "auto", flex: 1, minHeight: 0 }}>
+                <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.14, duration: 0.36, ease: [0.22, 1, 0.36, 1] }}
+                >
+                    {children}
+                </motion.div>
+            </div>
             {footer && <div style={{ flexShrink: 0 }}>{footer}</div>}
         </motion.div>
     );
@@ -1274,9 +1288,10 @@ function ProjectsContent() {
                     <motion.article
                         key={p.title + i}
                         className="pcard"
-                        initial={{ opacity: 0, y: 16 }}
+                        initial={{ opacity: 0, y: 18 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.07, duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
+                        transition={{ delay: i * 0.05, type: "spring", stiffness: 380, damping: 28 }}
+                        whileHover={{ y: -5 }}
                     >
                         <div className="pcard-body">
                             <div className="pcard-head">
@@ -1292,7 +1307,17 @@ function ProjectsContent() {
                             <p className="pcard-desc">{p.description}</p>
 
                             <div className="pcard-tags">
-                                {p.tech.map(t => <span key={t} className="badge">{t}</span>)}
+                                {p.tech.map((t, ti) => (
+                                    <motion.span
+                                        key={t}
+                                        className="badge"
+                                        initial={{ opacity: 0, y: 6, scale: 0.9 }}
+                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                        transition={{ delay: i * 0.05 + 0.18 + ti * 0.04, duration: 0.3 }}
+                                    >
+                                        {t}
+                                    </motion.span>
+                                ))}
                             </div>
 
                             <div className="pcard-actions">
@@ -1555,16 +1580,16 @@ const RESUME_URL = "/resume.pdf";
 const X_PROFILE_AVATAR = PROFILE_AVATAR;
 
 const DOCK_ITEMS = [
-    { id: "hero",       label: "Home",       Icon: Home,         isLink: false, href: "", maximizable: false },
-    { id: "about",      label: "About",      Icon: User,         isLink: false, href: "" },
-    { id: "experience", label: "Experience", Icon: Briefcase,    isLink: false, href: "" },
-    { id: "projects",   label: "Projects",   Icon: FolderOpen,   isLink: false, href: "", maximizable: false },
-    { id: "blogs",      label: "Blogs",      Icon: BookOpen,     isLink: false, href: "" },
-    { id: "contact",    label: "Contact",    Icon: Mail,         isLink: false, href: "" },
-    { id: "resume",     label: "Resume",     Icon: FileDown,     isLink: true,  href: RESUME_URL },
-    { id: "terminal",   label: "Terminal",   Icon: TerminalIcon, isLink: false, href: "" },
-    { id: "uses",       label: "Uses",       Icon: Wrench,       isLink: false, href: "" },
-    { id: "notes",      label: "Notes",      Icon: FileText,     isLink: false, href: "" },
+    { id: "hero",       label: "Home",         Icon: Home,         isLink: false, href: "", maximizable: false },
+    { id: "about",      label: "Profile",      Icon: User,         isLink: false, href: "" },
+    { id: "experience", label: "Work",         Icon: Briefcase,    isLink: false, href: "" },
+    { id: "projects",   label: "Code",         Icon: FolderOpen,   isLink: false, href: "", maximizable: false },
+    { id: "blogs",      label: "Reading",      Icon: BookOpen,     isLink: false, href: "" },
+    { id: "contact",    label: "Contact",      Icon: Mail,         isLink: false, href: "" },
+    { id: "resume",     label: "Certificates", Icon: FileDown,     isLink: true,  href: RESUME_URL },
+    { id: "terminal",   label: "Terminal",     Icon: TerminalIcon, isLink: false, href: "" },
+    { id: "uses",       label: "Skills",       Icon: Wrench,       isLink: false, href: "" },
+    { id: "notes",      label: "Blog",         Icon: FileText,     isLink: false, href: "" },
 ];
 
 const SOCIAL_DOCK = [

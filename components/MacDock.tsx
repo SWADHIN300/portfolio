@@ -52,16 +52,16 @@ export default function MacDock({ items, activeId, onSelect, className = "" }: M
             transition={{ type: "spring", stiffness: 260, damping: 28, delay: 0.1 }}
             className={
                 "fixed bottom-4 left-0 right-0 z-[100] mx-auto flex w-max max-w-[94vw] items-end gap-3 " +
-                "overflow-x-auto rounded-[26px] border border-white/10 bg-black/45 px-4 pb-2.5 pt-2 " +
+                "overflow-visible rounded-[26px] border border-white/10 bg-black/45 px-4 pb-2.5 pt-2 " +
                 "shadow-[0_20px_60px_rgba(0,0,0,0.45)] backdrop-blur-2xl " +
-                "[&::-webkit-scrollbar]:hidden " +
                 className
             }
         >
-            {items.map((item) => (
+            {items.map((item, i) => (
                 <DockIcon
                     key={item.id}
                     item={item}
+                    index={i}
                     mouseX={mouseX}
                     active={item.id === activeId}
                     onSelect={onSelect}
@@ -73,11 +73,13 @@ export default function MacDock({ items, activeId, onSelect, className = "" }: M
 
 function DockIcon({
     item,
+    index,
     mouseX,
     active,
     onSelect,
 }: {
     item: MacDockItem;
+    index: number;
     mouseX: MotionValue<number>;
     active: boolean;
     onSelect?: (id: string) => void;
@@ -103,18 +105,27 @@ function DockIcon({
             style={{ scale }}
             className="relative flex origin-bottom items-center justify-center"
         >
-            {/* Sliding active background (shared element across items) */}
+            {/* Sliding active background — springy, slightly elastic */}
             {active && (
                 <motion.span
                     layoutId="dock-active-bg"
                     className="absolute inset-0 rounded-[14px] bg-white/15 ring-1 ring-white/20"
-                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    transition={{ type: "spring", stiffness: 460, damping: 32 }}
                 />
             )}
+            {/* Hover background — fades in over 180ms */}
             <span
+                style={{
+                    opacity: hovered && !active ? 1 : 0,
+                    transition: "opacity 180ms ease",
+                }}
+                className="absolute inset-0 rounded-[11px] bg-white/10"
+            />
+            <span
+                style={{ transition: "color 180ms ease" }}
                 className={
-                    "relative flex h-11 w-11 items-center justify-center rounded-[14px] transition-colors " +
-                    (active ? "text-white" : "text-neutral-400")
+                    "relative flex h-11 w-11 items-center justify-center rounded-[14px] " +
+                    (active || hovered ? "text-white" : "text-neutral-400")
                 }
             >
                 <Icon size={20} strokeWidth={1.8} />
@@ -123,20 +134,28 @@ function DockIcon({
     );
 
     const slot = (
-        <div
+        <motion.div
             className="relative flex flex-col items-center gap-1.5 pb-0.5"
+            // Staggered pop-in entrance, left → right
+            initial={{ opacity: 0, y: 22 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.16 + index * 0.04, type: "spring", stiffness: 440, damping: 24 }}
+            // Lift on hover (scale handled by magnification), press feedback on tap
+            whileHover={{ y: -4, transition: { duration: 0.18, ease: "easeOut" } }}
+            whileTap={{ scale: 0.86 }}
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
         >
-            {/* Hover tooltip (kept outside the magnified box so it isn't scaled) */}
+            {/* Label pill — pops up above the button on hover */}
             <AnimatePresence>
                 {hovered && (
                     <motion.span
-                        initial={{ opacity: 0, y: 6, scale: 0.85 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 4, scale: 0.9 }}
-                        transition={{ type: "spring", stiffness: 400, damping: 26 }}
-                        className="pointer-events-none absolute bottom-[calc(100%+14px)] left-1/2 z-[9999] -translate-x-1/2 whitespace-nowrap rounded-md border border-white/10 bg-black/85 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.12em] text-white"
+                        initial={{ opacity: 0, y: 4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 4 }}
+                        transition={{ duration: 0.15, ease: "easeOut" }}
+                        style={{ background: "rgba(0,0,0,0.92)", padding: "4px 8px" }}
+                        className="pointer-events-none absolute bottom-[calc(100%+10px)] left-1/2 z-[9999] -translate-x-1/2 whitespace-nowrap rounded-md text-center text-[11px] font-medium text-white"
                     >
                         {item.label}
                     </motion.span>
@@ -145,17 +164,28 @@ function DockIcon({
 
             {magnified}
 
-            {/* Active indicator dot (slides between items) */}
+            {/* Permanent label attached under the button */}
+            <span
+                style={{ transition: "color 180ms ease" }}
+                className={
+                    "max-w-[64px] truncate text-center text-[8.5px] font-medium leading-none tracking-[0.04em] " +
+                    (active ? "text-white" : "text-neutral-400")
+                }
+            >
+                {item.label}
+            </span>
+
+            {/* Active indicator dot — elastic slide between items */}
             <span className="flex h-1 w-1 items-center justify-center">
                 {active && (
                     <motion.span
                         layoutId="dock-active-dot"
                         className="block h-1 w-1 rounded-full bg-white"
-                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                        transition={{ type: "spring", stiffness: 500, damping: 20 }}
                     />
                 )}
             </span>
-        </div>
+        </motion.div>
     );
 
     if (item.href) {
