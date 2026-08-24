@@ -1582,10 +1582,10 @@ const X_PROFILE_AVATAR = PROFILE_AVATAR;
 const DOCK_ITEMS = [
     { id: "about",      label: "Profile",      Icon: CircleUser,   isLink: false, href: "" },
     { id: "experience", label: "Work",         Icon: Briefcase,    isLink: false, href: "" },
-    { id: "projects",   label: "Code",         Icon: Code2,        isLink: false, href: "", maximizable: false },
-    { id: "blogs",      label: "Reading",      Icon: BookOpen,     isLink: false, href: "" },
+    { id: "projects",   label: "Projects",     Icon: Code2,        isLink: false, href: "", maximizable: false },
+    { id: "blogs",      label: "Blogs",        Icon: BookOpen,     isLink: false, href: "" },
     { id: "contact",    label: "Contact",      Icon: Mail,         isLink: false, href: "" },
-    { id: "resume",     label: "Certificates", Icon: ScrollText,   isLink: true,  href: RESUME_URL },
+    { id: "resume",     label: "CV",           Icon: ScrollText,   isLink: true,  href: RESUME_URL },
     { id: "terminal",   label: "Terminal",     Icon: TerminalIcon, isLink: false, href: "" },
     { id: "uses",       label: "Skills",       Icon: Cpu,          isLink: false, href: "" },
     { id: "notes",      label: "Blog",         Icon: SquarePen,    isLink: false, href: "" },
