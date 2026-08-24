@@ -35,9 +35,18 @@ export const defaultProjects: Project[] = [
         description:
             "A high-performance trading terminal built with Next.js and Rust, featuring real-time market data, advanced charting, and lightning-fast order execution.",
         tech: ["Next.js", "React", "TypeScript", "Rust", "WebSocket", "Tailwind CSS"],
-        liveUrl: "https://ape-x-theta.vercel.app",
+        liveUrl: "https://app-six-liard-53.vercel.app/trade",
         githubUrl: "https://github.com/SWADHIN300/ApeX",
         imageUrl: "/projects/apex.png",
+    },
+       {
+        title: "Coin Tracking",
+        description:
+            "A comprehensive cryptocurrency tracking application with real-time price updates, candlestick charts, and portfolio management features.",
+        tech: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Chart.js"],
+        liveUrl: "https://coin-tracking-three.vercel.app/",
+        githubUrl: "https://github.com/SWADHIN300/coin-tracking",
+        imageUrl: "/projects/coin-tracking.png",
     },
     {
         title: "LinuxForge",
@@ -48,15 +57,7 @@ export const defaultProjects: Project[] = [
         githubUrl: "https://github.com/SWADHIN300/LinuxForge",
         imageUrl: "/projects/linuxforge.png",
     },
-    {
-        title: "Coin Tracking",
-        description:
-            "A comprehensive cryptocurrency tracking application with real-time price updates, candlestick charts, and portfolio management features.",
-        tech: ["Next.js", "React", "TypeScript", "Tailwind CSS", "Chart.js"],
-        liveUrl: "https://coin-tracking-three.vercel.app/",
-        githubUrl: "https://github.com/SWADHIN300/coin-tracking",
-        imageUrl: "/projects/coin-tracking.png",
-    },
+ 
     {
         title: "Stock Tracker",
         description:
